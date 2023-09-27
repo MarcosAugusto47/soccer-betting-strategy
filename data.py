@@ -3,6 +3,8 @@ import re
 import json
 import numpy as np
 
+from itertools import chain
+
 
 def load_map(file_path):
 
@@ -69,7 +71,6 @@ def add_real_prob(df_bet, df_prob):
     
     return df_bet
 
-
 class DataFrameFromBetMap:
     def __init__(self):
         map_bet = load_map('data/probs.json')
@@ -127,11 +128,20 @@ def apply_final_treatment(
 
     df_new = df_new.dropna(subset=['BetMap']).reset_index(drop=True)
 
-    df_new = df_new[df_new.Market=='exact']
+    #df_new = df_new[df_new.Market=='exact']
 
     # odds_sample = odds_sample[odds_sample.Scenario.apply(lambda x: "7" not in x)].reset_index(drop=True)
 
-    df_new = add_real_prob(df_new, df_real_prob)
+
+    def add_real_prob2(x, df_real_prob):
+        
+        bet_matrix = np.transpose(np.array(x).reshape(7,7))
+        matrix_mult = bet_matrix * df_real_prob.to_numpy()
+        return sum(list(chain(*matrix_mult)))
+
+
+    #df_new = add_real_prob(df_new, df_real_prob)
+    df_new['real_prob'] = df_new.BetMap.apply(lambda x: add_real_prob2(x, df_real_prob))
 
     # Flag if public odd > predicted odd
     df_new['bet_flag'] =  df_new['public_prob'] < df_new['real_prob']
