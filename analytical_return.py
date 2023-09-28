@@ -57,7 +57,7 @@ def compute_objective_via_analytical(
     my_expectation = expectation(allocation=x,
                                  public_odd=public_odd,
                                  real_probabilities=real_probabilities)
-    #print(f"my_expectation: {my_expectation}")
+    print(f"my_expectation: {my_expectation}")
 
     my_second_moment = second_moment(allocation=x,
                                      public_odd=public_odd,
@@ -65,11 +65,11 @@ def compute_objective_via_analytical(
                                      scenario=scenario)
 
     my_sigma = np.sqrt(variance(my_second_moment, my_expectation))
-    #print(f"my_sigma: {my_sigma}")
+    print(f"my_sigma: {my_sigma}")
 
     # if math.isnan(my_sigma) or my_sigma < 10:
     #     my_sigma = 10
-    #print(f"my_sigma: {my_sigma}")
+    print(f"my_sigma: {my_sigma}")
 
     output = my_expectation / my_sigma
 

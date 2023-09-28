@@ -6,6 +6,18 @@ import numpy as np
 from itertools import chain
 
 
+def load_metadata_artefacts(file_path: str):
+    metadata = pd.read_parquet(file_path)
+    metadata = metadata[~metadata.Home_score.isna()]
+    metadata['Home_score'] = metadata.Home_score.apply(int)
+    metadata['Away_score'] = metadata.Away_score.apply(int)
+    metadata['Outcome'] = metadata.apply(lambda x: f"{str(x['Home_score'])} : { str(x['Away_score'])}", axis=1)
+
+    gameid_to_outcome = metadata.set_index(['GameId'])['Outcome'].to_dict()
+
+    return metadata, gameid_to_outcome
+
+
 def load_map(file_path):
 
     # Open the JSON file for reading
@@ -13,7 +25,8 @@ def load_map(file_path):
         return json.load(json_file)
 
 
-def treat_odds(df):
+def load_odds(file_path):
+    df = pd.read_parquet(file_path)
     df = df[df.League=="Brasileirão Série A"].drop("League", axis=1)
     df['Odd'] = df['Odd'].astype(float)
     df['public_prob'] = 1/df['Odd']
