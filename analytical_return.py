@@ -88,7 +88,7 @@ def compute_objective_via_analytical(
     my_expectation = expectation(allocation=x,
                                  public_odd=public_odd,
                                  real_probabilities=real_probabilities)
-    print(f"my_expectation: {my_expectation}")
+    #print(f"my_expectation: {my_expectation}")
 
     my_second_moment = second_moment(allocation=x,
                                      public_odd=public_odd,
@@ -97,7 +97,7 @@ def compute_objective_via_analytical(
                                      df_prob=df_prob)
 
     my_sigma = np.sqrt(variance(my_second_moment, my_expectation))
-    print(f"my_sigma: {my_sigma}")
+    #print(f"my_sigma: {my_sigma}")
 
     # if math.isnan(my_sigma) or my_sigma < 10:
     #     my_sigma = 10
@@ -111,14 +111,13 @@ def minimize_analytical(public_odd, real_probabilities, event, df_prob):
     
     # Set initial guess
     x0 = np.zeros(len(public_odd))
-    print(f"x0: {x0}")
-    
+   
     args = (public_odd, real_probabilities, event, df_prob)
     
     res = minimize(fun=compute_objective_via_analytical,
                    x0=x0,
                    args=args,
-                   tol=0.0001,
+                   tol=0.001,
                    options={'maxiter': 1000, 'disp': True, 'return_all': True})
     
     if res.success:

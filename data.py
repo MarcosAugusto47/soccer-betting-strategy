@@ -32,6 +32,16 @@ def load_odds(file_path):
     return df
 
 
+def join_metadata(df: pd.DataFrame, metadata: pd.DataFrame) -> pd.DataFrame:
+    
+    df = pd.merge(left=df,
+                  right=metadata[['GameId', 'Home', 'Away']],
+                  on=['GameId'],
+                  how='left') 
+    
+    return df
+
+
 def build_empty_dataframe(nrow, ncol, value):
 
     # Create a dataframe with 7 rows and 7 columns filled with np.nan
@@ -129,6 +139,10 @@ def apply_final_treatment(
         df_odds: dataframe with public odds
         df_real_prob: 7x7 dataframe with the real probabilities given by the
         statistical model
+    
+    Returns:
+        Final treated pandas dataframe with only bet opportunities that
+        the public odd is greater than the real odd.
     """
 
     # Get flat table from instance of DataFrameFromBetMap
@@ -156,5 +170,7 @@ def apply_final_treatment(
 
     # Flag if public odd > predicted odd
     df_odds['bet_flag'] =  df_odds['public_prob'] < df_odds['real_prob']
+
+    df_odds = df_odds[df_odds.bet_flag].copy(deep=True).reset_index(drop=True)
 
     return df_odds
