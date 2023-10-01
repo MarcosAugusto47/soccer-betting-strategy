@@ -18,6 +18,9 @@ def second_moment(allocation: list,
     """
     Computes the second moment of the random variable.
 
+    Note:
+        Check mathematical definition solved by hand at docs/return-analytical-definition.png
+
     Args:
         allocation: allocation of percentages of bet distribution
         public_odd: array of odds from Sports books
