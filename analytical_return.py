@@ -47,16 +47,19 @@ def second_moment(allocation: list,
                 theta_ij = theta_i * theta_j
                 
                 prob_ij = 0
+                
+                # Get event i 7x7 matrix
                 event_i = np.transpose(np.array(event[i]).reshape(7,7))
+                # Get event i 7x7 matrix
                 event_j = np.transpose(np.array(event[j]).reshape(7,7))
+                # Get events intersections, both matrices are filled with 0's or 1's
                 event_intersection_matrix = event_i * event_j
+                # Get event insercetions mapped real probabilities
                 event_intersection_matrix_prob = event_intersection_matrix * df_prob.to_numpy()
-
+                # Compute the final events intersection probability
                 prob_ij = sum(list(chain(*event_intersection_matrix_prob)))
 
-
                 term2_list.append(theta_ij*prob_ij)
-    
     
     term2 = sum(term2_list)
             
