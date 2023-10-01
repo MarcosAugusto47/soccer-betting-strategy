@@ -1,7 +1,10 @@
+import pandas as pd
 import numpy as np
 from itertools import chain
 import math
+
 from scipy.optimize import minimize
+from utils import get_favorable_scenarios
 
 def get_index_to_scenario():
     """Get a dictionary with a index as key and a scenario as value."""
@@ -46,28 +49,21 @@ def generate_bet_return(
         sampled_result = INDEX_TO_SCENARIO.get(position)
         #print(f"position: {position}; sampled_result: {sampled_result}")
 
-
         #################################################################
         #sampled_result_split = sampled_result.split(" : ")
         #i = int(sampled_result_split[0])
         #j = int(sampled_result_split[1])
         #df_log.iloc[j, i] = df_log.iloc[j, i] + 1
         #################################################################
-        
-        favorable_scenarios = list(df_bet.Scenario)
+                
+        df_bet['sample_flag'] = df_bet['BetMap'].apply(get_favorable_scenarios).apply(lambda x: sampled_result in x)
 
-        if sampled_result in favorable_scenarios:
-            # Set the new column sample_flag to 1 in the row with the exact
-            # result sampled, otherwise 0
-            df_bet.loc[:, 'sample_flag'] = df_bet['Scenario'].apply(lambda x: 1 if x == sampled_result else 0)
+        # Calculate the financial return
+        financial_return = sum(df_bet['Odd'] * df_bet['sample_flag'] * allocation_array)
+        #print(f"financial_return: {financial_return}")
+                    
+        print(f"sampled_result: {sampled_result} ---------- financial_return: {financial_return}")
 
-            # Calculate the financial return
-            financial_return = sum(df_bet['Odd'] * df_bet['sample_flag'] * allocation_array)
-            #print(f"financial_return: {financial_return}")
-            
-        else:
-            financial_return = 0
-        
         financial_return_list.append(financial_return)
     
     return np.array(financial_return_list)

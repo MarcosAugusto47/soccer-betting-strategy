@@ -1,12 +1,33 @@
 import numpy as np
+import pandas as pd
+
 from scipy.optimize import minimize
+from itertools import chain
 
 
 def expectation(allocation, public_odd, real_probabilities):
     return sum(public_odd * allocation * real_probabilities)
 
 
-def second_moment(allocation, public_odd, real_probabilities, scenario):
+def second_moment(allocation: list,
+                  public_odd: np.array,
+                  real_probabilities: np.array,
+                  event: np.array,
+                  df_prob: pd.DataFrame,
+) -> float:
+    """
+    Computes the second moment of the random variable.
+
+    Args:
+        allocation: allocation of percentages of bet distribution
+        public_odd: array of odds from Sports books
+        real_probabilities: array of real probabilities of bet opportunities
+        event: array of 7x7 lenght arrays that maps the scenarios
+        df_prob: 7x7 pandas dataframe of real probablities, one for each scenario
+    
+    Returns:
+        float: final computation
+    """
     
     term1 = sum((public_odd * allocation)**2 * real_probabilities)
 
@@ -23,10 +44,13 @@ def second_moment(allocation, public_odd, real_probabilities, scenario):
                 theta_ij = theta_i * theta_j
                 
                 prob_ij = 0
-                is_scenario_equal = scenario[i] == scenario[j]
-                
-                if is_scenario_equal:
-                    prob_ij = real_probabilities[i]
+                event_i = np.transpose(np.array(event[i]).reshape(7,7))
+                event_j = np.transpose(np.array(event[j]).reshape(7,7))
+                event_intersection_matrix = event_i * event_j
+                event_intersection_matrix_prob = event_intersection_matrix * df_prob.to_numpy()
+
+                prob_ij = sum(list(chain(*event_intersection_matrix_prob)))
+
 
                 term2_list.append(theta_ij*prob_ij)
     
@@ -49,7 +73,8 @@ def compute_objective_via_analytical(
     x: np.ndarray,
     public_odd: np.ndarray,
     real_probabilities: np.ndarray,
-    scenario: np.ndarray
+    event: np.ndarray,
+    df_prob: pd.DataFrame
 ) -> np.float64:
 
     x = softmax(x)
@@ -62,31 +87,32 @@ def compute_objective_via_analytical(
     my_second_moment = second_moment(allocation=x,
                                      public_odd=public_odd,
                                      real_probabilities=real_probabilities,
-                                     scenario=scenario)
+                                     event=event,
+                                     df_prob=df_prob)
 
     my_sigma = np.sqrt(variance(my_second_moment, my_expectation))
     print(f"my_sigma: {my_sigma}")
 
     # if math.isnan(my_sigma) or my_sigma < 10:
     #     my_sigma = 10
-    print(f"my_sigma: {my_sigma}")
 
     output = my_expectation / my_sigma
 
     return -output
 
 
-def minimize_analytical(public_odd, real_probabilities, scenario):
+def minimize_analytical(public_odd, real_probabilities, event, df_prob):
     
     # Set initial guess
     x0 = np.zeros(len(public_odd))
+    print(f"x0: {x0}")
     
-    args = (public_odd, real_probabilities, scenario)
+    args = (public_odd, real_probabilities, event, df_prob)
     
     res = minimize(fun=compute_objective_via_analytical,
                    x0=x0,
                    args=args,
-                   tol=0.00001,
+                   tol=0.0001,
                    options={'maxiter': 1000, 'disp': True, 'return_all': True})
     
     if res.success:
