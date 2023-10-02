@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 
 from analytical_return import (
@@ -13,6 +12,7 @@ from data import (
     apply_final_treatment,
 )
 from GameProbs import GameProbs
+from utils import get_bet_return
 
 GAME_ID = "5254998" # Chapecoense x Flamengo
 
@@ -30,8 +30,7 @@ sportsbook_list = ['1xBet',
 odds_sample = odds[(odds.Sportsbook.isin(sportsbook_list))&(odds.GameId==GAME_ID)]
 odds_sample = join_metadata(odds_sample, metadata)
 
-my_game = GameProbs(GAME_ID) 
-df = my_game.build_dataframe()
+df = GameProbs(GAME_ID).build_dataframe()
 
 odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
 
@@ -46,3 +45,9 @@ solution = minimize_analytical(public_odd=odds_favorable,
                                df_prob=df)
 solution = softmax(solution)
 print(f"solution:\n{solution}")
+
+scenario = gameid_to_outcome[GAME_ID]
+print(f"scenario: {scenario}")
+
+financial_return = get_bet_return(df=odds_sample, allocation_array=solution, scenario=scenario)
+print(f"financial_return: {financial_return}")
