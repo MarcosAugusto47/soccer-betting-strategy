@@ -4,7 +4,7 @@ from itertools import chain
 import math
 
 from scipy.optimize import minimize
-from utils import get_favorable_scenarios
+from utils import get_scenarios
 
 def get_index_to_scenario():
     """Get a dictionary with a index as key and a scenario as value."""
@@ -23,6 +23,16 @@ def get_index_to_scenario():
 INDEX_TO_SCENARIO = get_index_to_scenario()
 
 
+def get_bet_return(df: pd.DataFrame, allocation_array: list, scenario: str) -> float:
+    """Get financial return of the bet by given allocation and scenario"""
+    check_scenario = lambda x: scenario in x
+    # Check if scenario is inside the BetMap
+    df['flag'] = df['BetMap'].apply(get_scenarios).apply(check_scenario)
+
+    # Calculate the financial return
+    return sum(df['Odd'] * df['flag'] * allocation_array)
+
+
 def generate_bet_return(
     df_prob, 
     df_bet,
@@ -32,22 +42,18 @@ def generate_bet_return(
     num_trials = 1
     probabilities = list(chain(*df_prob.values))
     financial_return_list = []
-    print(f"Running generate_bet_return")
 
     for _ in range(num_simulations):
         
-        # Generate a single random sample from the fixed probabilities dataframe,
+        # Generate a single random sample from fixed probabilities dataframe,
         # multinomial distribution as a proxy
         random_values = np.random.multinomial(num_trials, probabilities)
-
-        #print(random_values)
 
         # Get the position index of the generated random value
         position = list(random_values).index(1)
 
         # Map the position to the actual match result
-        sampled_result = INDEX_TO_SCENARIO.get(position)
-        #print(f"position: {position}; sampled_result: {sampled_result}")
+        scenario = INDEX_TO_SCENARIO.get(position)
 
         #################################################################
         #sampled_result_split = sampled_result.split(" : ")
@@ -55,14 +61,11 @@ def generate_bet_return(
         #j = int(sampled_result_split[1])
         #df_log.iloc[j, i] = df_log.iloc[j, i] + 1
         #################################################################
-                
-        df_bet['sample_flag'] = df_bet['BetMap'].apply(get_favorable_scenarios).apply(lambda x: sampled_result in x)
-
+        
         # Calculate the financial return
-        financial_return = sum(df_bet['Odd'] * df_bet['sample_flag'] * allocation_array)
-        #print(f"financial_return: {financial_return}")
+        financial_return = get_bet_return(df_bet, allocation_array, scenario)
                     
-        print(f"sampled_result: {sampled_result} ---------- financial_return: {financial_return}")
+        print(f"sampled_result: {scenario} ---- financial_return: {financial_return}")
 
         financial_return_list.append(financial_return)
     

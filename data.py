@@ -171,6 +171,6 @@ def apply_final_treatment(
     # Flag if public odd > predicted odd
     df_odds['bet_flag'] =  df_odds['public_prob'] < df_odds['real_prob']
 
-    df_odds = df_odds[df_odds.bet_flag].copy(deep=True).reset_index(drop=True)
+    df_odds = df_odds[df_odds.bet_flag]
 
     return df_odds

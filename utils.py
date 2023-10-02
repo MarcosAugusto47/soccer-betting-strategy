@@ -20,10 +20,7 @@ def get_index_to_scenario_for_betmap():
     return index_to_scenario
 
 
-INDEX_TO_SCENARIO_BET_MAP = get_index_to_scenario_for_betmap()
-
-
-def find_positions(input_list, target_element):
+def find_positions(input_list, target_element) -> list:
     """Get target element indexes of given input list."""
     # Using a list comprehension to find positions
     positions = [index for index, element in enumerate(input_list) if element == target_element]
@@ -36,8 +33,11 @@ def get_values_by_keys(dictionary, keys_to_lookup) -> list:
     return [dictionary.get(key) for key in keys_to_lookup]
 
 
-def get_favorable_scenarios(x: pd.Series)-> list:
+def get_scenarios(x: list)-> list:
     """Get list of 7x7 soccer scenarios by given list of dummies"""
+    
+    INDEX_TO_SCENARIO_BET_MAP = get_index_to_scenario_for_betmap()
+    
     positions = find_positions(x, target_element=1)
     scenarios = get_values_by_keys(INDEX_TO_SCENARIO_BET_MAP, positions)
 
