@@ -14,27 +14,17 @@ from data import (
 from GameProbs import GameProbs
 from utils import get_bet_return
 
-GAME_ID = "5254998" # Chapecoense x Flamengo
+GAME_ID = "2744178" # Chapecoense x Flamengo
 
 metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata.parquet")
 odds = load_odds("data/odds.parquet")
 
-sportsbook_list = ['1xBet',
-                   'Megapari Sport',
-                   'NetBet',
-                   'Betobet',
-                   '18Bet',
-                   'Mr Green Sport',
-                   'Parimatch',
-                   'Bet365']
-odds_sample = odds[(odds.Sportsbook.isin(sportsbook_list))&(odds.GameId==GAME_ID)]
+odds_sample = odds[(odds.GameId==GAME_ID)]
 odds_sample = join_metadata(odds_sample, metadata)
 
 df = GameProbs(GAME_ID).build_dataframe()
 
 odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
-
-odds_sample = odds_sample[odds_sample.Market.isin(['exact', 'both_score'])]
 
 odds_favorable = np.array(odds_sample['Odd'])
 real_prob_favorable = np.array(odds_sample['real_prob'])
