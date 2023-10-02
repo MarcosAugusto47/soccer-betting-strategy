@@ -4,7 +4,7 @@ from itertools import chain
 import math
 
 from scipy.optimize import minimize
-from utils import get_scenarios
+from utils import get_bet_return
 
 def get_index_to_scenario():
     """Get a dictionary with a index as key and a scenario as value."""
@@ -21,16 +21,6 @@ def get_index_to_scenario():
 
 
 INDEX_TO_SCENARIO = get_index_to_scenario()
-
-
-def get_bet_return(df: pd.DataFrame, allocation_array: list, scenario: str) -> float:
-    """Get financial return of the bet by given allocation and scenario"""
-    check_scenario = lambda x: scenario in x
-    # Check if scenario is inside the BetMap
-    df['flag'] = df['BetMap'].apply(get_scenarios).apply(check_scenario)
-
-    # Calculate the financial return
-    return sum(df['Odd'] * df['flag'] * allocation_array)
 
 
 def generate_bet_return(
