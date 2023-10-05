@@ -49,6 +49,11 @@ def get_bet_return(df: pd.DataFrame, allocation_array: list, scenario: str) -> f
     check_scenario = lambda x: scenario in x
     # Check if scenario is inside the BetMap
     df['flag'] = df['BetMap'].apply(get_scenarios).apply(check_scenario)
-
+    
+    print("Bets won:")
+    print(df[df.flag][['Market', 'Bet', 'Scenario', 'Odd', 'flag']].values, )
+    print("Allocation won:")
+    print(pd.Series(allocation_array)[df.flag.to_list()])
+    
     # Calculate the financial return
     return sum(df['Odd'] * df['flag'] * allocation_array)
