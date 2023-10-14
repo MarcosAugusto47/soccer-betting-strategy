@@ -26,7 +26,7 @@ def load_map(file_path):
 def load_odds(file_path):
     df = pd.read_parquet(file_path)
     df = df[df.League=="Brasileirão Série A"].drop("League", axis=1)
-    df = df[df.Market!="spread"]
+    #df = df[df.Market!="spread"]
     df['Odd'] = df['Odd'].astype(float)
     df['public_prob'] = 1/df['Odd']
 
