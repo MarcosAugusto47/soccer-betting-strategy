@@ -9,28 +9,36 @@ from data import (
     load_metadata_artefacts,
     load_odds,
     join_metadata,
-    build_empty_dataframe,
     apply_final_treatment,
 )
 from GameProbs import GameProbs
+from strategies import filter_better_odds
 from utils import get_bet_return
 from config import games_ids as GAMES_IDS
 
-GAME_ID = "2744178" # Chapecoense x Flamengo
+#GAME_ID = "2744178" # Chapecoense x Flamengo
 
 metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata.parquet")
 odds = load_odds("data/odds.parquet")
 
 track_record_list = []
+count=0
 
-for game_id in GAMES_IDS[:300]:
-       
+for game_id in GAMES_IDS[:100]:
+    
+    count += 1
+    print(f"count: {count}")
+    
     odds_sample = odds[(odds.GameId==game_id)]
     odds_sample = join_metadata(odds_sample, metadata)
 
     df = GameProbs(game_id).build_dataframe()
 
     odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
+    
+    #print(f"Shape: {odds_sample.shape}")
+    #odds_sample = filter_better_odds(odds_sample, n=20)
+    #print(f"Shape: {odds_sample.shape}")
 
     if len(odds_sample) > 50: # > 50
         continue
@@ -38,6 +46,7 @@ for game_id in GAMES_IDS[:300]:
     odds_favorable = np.array(odds_sample['Odd'])
     real_prob_favorable = np.array(odds_sample['real_prob'])
     event_favorable = list(odds_sample['BetMap'].values)
+    
     try:
         solution = minimize_analytical(public_odd=odds_favorable,
                                        real_probabilities=real_prob_favorable,
