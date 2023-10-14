@@ -40,7 +40,7 @@ for game_id in GAMES_IDS[:100]:
     #odds_sample = filter_better_odds(odds_sample, n=20)
     #print(f"Shape: {odds_sample.shape}")
 
-    if len(odds_sample) > 50: # > 50
+    if len(odds_sample) > 70: # > 50
         continue
 
     odds_favorable = np.array(odds_sample['Odd'])
@@ -74,6 +74,7 @@ for game_id in GAMES_IDS[:100]:
 
 
     track_record = {}
+    track_record['count'] = count
     track_record['game_id'] = str(game_id)
     track_record['return'] = financial_return
     track_record_list.append(track_record)
