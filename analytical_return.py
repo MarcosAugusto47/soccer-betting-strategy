@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
+import logging
 
 from scipy.optimize import minimize
 from itertools import chain
 
+#logger = logging.getLogger(__name__)
 
 def expectation(allocation, public_odd, real_probabilities):
     return sum(public_odd * allocation * real_probabilities)
@@ -89,6 +91,7 @@ def compute_objective_via_analytical(
                                  public_odd=public_odd,
                                  real_probabilities=real_probabilities)
     #print(f"my_expectation: {my_expectation}")
+    #logger.info(f"my_expectation: {my_expectation}")
 
     my_second_moment = second_moment(allocation=x,
                                      public_odd=public_odd,
@@ -98,6 +101,7 @@ def compute_objective_via_analytical(
 
     my_sigma = np.sqrt(variance(my_second_moment, my_expectation))
     #print(f"my_sigma: {my_sigma}")
+    #logger.info(f"my_sigma: {my_sigma}")
 
     # if math.isnan(my_sigma) or my_sigma < 10:
     #     my_sigma = 10
