@@ -117,8 +117,9 @@ def minimize_analytical(public_odd, real_probabilities, event, df_prob):
     res = minimize(fun=compute_objective_via_analytical,
                    x0=x0,
                    args=args,
-                   tol=0.01,
-                   options={'maxiter': 1000, 'disp': True, 'return_all': True})
+                   tol=0.001,
+                   method='Powell',
+                   options={'maxiter': 70, 'disp': True, 'return_all': True})
     
     if res.success:
         return res.x

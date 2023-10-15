@@ -29,7 +29,7 @@ track_record_list = []
 
 count = 0
 
-for game_id in GAMES_IDS[:70]:
+for game_id in GAMES_IDS[70:140]:
     
     count+=1
     print(f"count: {count}")
@@ -40,7 +40,10 @@ for game_id in GAMES_IDS[:70]:
     df = GameProbs(game_id).build_dataframe()
 
     odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
-
+    
+    print(f"len(odds_sample): {len(odds_sample)}; game_id: {game_id}; count: {count}")
+    #logger.info(f"len(odds_sample): {len(odds_sample)}")
+    
     if len(odds_sample) > 80: # > 50
         continue
 

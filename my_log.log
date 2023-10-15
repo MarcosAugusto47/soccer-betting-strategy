@@ -5,95 +5,103 @@ Columns: [Market, Bet, Scenario, Odd, flag]
 Index: []
 INFO:utils:Allocation won:
 Series([], dtype: float64)
-INFO:__main__:game_id: 2762918; scenario: 2 : 1; financial_return: 0.0
+INFO:__main__:game_id: 2860200; scenario: 2 : 1; financial_return: 0.0
 INFO:__main__:solution:
-[0.01, 0.133, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.133, 0.01, 0.0, 0.282, 0.269, 0.01, 0.0, 0.0, 0.133, 0.01, 0.0, 0.001]
+[0.411, 0.029, 0.208, 0.194, 0.095, 0.0, 0.004, 0.058]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
+   Market Bet Scenario   Odd  flag
+43  exact   o    3 : 0  51.0  True
 INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 4698301; scenario: 3 : 0; financial_return: 0.0
-INFO:__main__:solution:
-[0.096, 0.003, 0.0, 0.689, 0.096, 0.003, 0.0, 0.0, 0.096, 0.003, 0.0, 0.011, 0.0, 0.0, 0.003, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-         Market    Bet Scenario    Odd  flag
-6    over/under  under      1.5  2.950  True
-118  both_score     no           1.935  True
-369  over/under  under      1.5  2.950  True
-404  over/under  under      1.5  2.950  True
-INFO:utils:Allocation won:
-0    0.013851
-4    0.673664
-5    0.013851
-9    0.013851
+2    0.043375
 dtype: float64
-INFO:__main__:game_id: 2932127; scenario: 0 : 1; financial_return: 1.426117971942361
+INFO:__main__:game_id: 4396146; scenario: 3 : 0; financial_return: 2.212123820670726
 INFO:__main__:solution:
-[0.014, 0.084, 0.008, 0.002, 0.674, 0.014, 0.084, 0.008, 0.002, 0.014, 0.084, 0.008, 0.002]
+[0.0, 0.201, 0.043, 0.003, 0.003, 0.001, 0.0, 0.0, 0.301, 0.0, 0.185, 0.053, 0.0, 0.0, 0.037, 0.0, 0.0, 0.043, 0.0, 0.026, 0.039, 0.0, 0.0, 0.002, 0.059, 0.004]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
-         Market    Bet Scenario   Odd  flag
-122      spread   home    +1/-1  1.41  True
-203      spread   home    +1/-1  1.41  True
-399  over/under  under      1.5  2.70  True
-681      spread   home    +1/-1  1.41  True
+  Market   Bet Scenario   Odd  flag
+2    h2h  away           4.33  True
 INFO:utils:Allocation won:
-5     0.154630
-8     0.154629
-11    0.260812
-17    0.154627
+0    0.421093
 dtype: float64
-INFO:__main__:game_id: 4698343; scenario: 1 : 0; financial_return: 1.3582723700895303
+INFO:__main__:game_id: 3013359; scenario: 1 : 2; financial_return: 1.8233334527864065
 INFO:__main__:solution:
-[0.042, 0.0, 0.0, 0.046, 0.0, 0.155, 0.046, 0.0, 0.155, 0.047, 0.0, 0.261, 0.0, 0.0, 0.0, 0.046, 0.0, 0.155, 0.042, 0.0, 0.0, 0.0, 0.001, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-         Market   Bet Scenario   Odd  flag
-395  over/under  over      2.5  1.97  True
-INFO:utils:Allocation won:
-12    0.648335
-dtype: float64
-INFO:__main__:game_id: 4698375; scenario: 2 : 1; financial_return: 1.2772205800202587
-INFO:__main__:solution:
-[0.11, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.001, 0.648, 0.11, 0.001, 0.0, 0.0, 0.0, 0.014, 0.001, 0.003, 0.0, 0.0, 0.0, 0.001, 0.0, 0.11, 0.001, 0.0, 0.001, 0.0, 0.0, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-    Market   Bet Scenario  Odd  flag
-705    h2h  draw           3.7  True
-INFO:utils:Allocation won:
-22    0.30697
-dtype: float64
-INFO:__main__:game_id: 3022754; scenario: 0 : 0; financial_return: 1.1357896778772052
-INFO:__main__:solution:
-[0.112, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.242, 0.0, 0.227, 0.0, 0.0, 0.0, 0.11, 0.307, 0.0, 0.0, 0.0]
+[0.421, 0.367, 0.0, 0.0, 0.05, 0.0, 0.0, 0.02, 0.0, 0.141, 0.0, 0.0, 0.0, 0.0, 0.0]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
          Market   Bet Scenario    Odd  flag
-415  over/under  over      3.5   3.65  True
-498      spread  home    -2/+2  13.00  True
-511  both_score    no            2.10  True
-712  over/under  over      3.5   3.65  True
-755  over/under  over      3.5   3.64  True
+50        exact     o    4 : 3  251.0  True
+71   over/under  over      5.5    9.0  True
+607  over/under  over      3.5    2.6  True
+609  over/under  over      4.5    4.8  True
+611  over/under  over      5.5    9.0  True
+927  over/under  over      3.5    2.6  True
+931  over/under  over      5.5    9.0  True
 INFO:utils:Allocation won:
-0    0.113210
-3    0.006444
-4    0.631901
-5    0.113210
-7    0.111738
+11    4.236497e-03
+12    5.170366e-15
+30    9.260387e-02
+31    1.040662e-02
+32    1.057527e-02
+44    8.120222e-16
+45    7.759091e-04
 dtype: float64
-INFO:__main__:game_id: 4396117; scenario: 4 : 0; financial_return: 2.643924867215637
+INFO:__main__:game_id: 4396154; scenario: 4 : 3; financial_return: 1.4562431170682573
 INFO:__main__:solution:
-[0.113, 0.006, 0.0, 0.006, 0.632, 0.113, 0.006, 0.112, 0.005, 0.005, 0.001]
+[0.0, 0.0, 0.047, 0.024, 0.05, 0.004, 0.018, 0.023, 0.0, 0.001, 0.005, 0.004, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.023, 0.0, 0.0, 0.089, 0.0, 0.0, 0.0, 0.093, 0.01, 0.011, 0.251, 0.344, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+  Market   Bet Scenario  Odd  flag
+2    h2h  away           3.8  True
+INFO:utils:Allocation won:
+0    0.112643
+dtype: float64
+INFO:__main__:game_id: 2932130; scenario: 1 : 2; financial_return: 0.4280422439518658
+INFO:__main__:solution:
+[0.113, 0.003, 0.635, 0.245, 0.0, 0.004]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+         Market   Bet Scenario   Odd  flag
+9    over/under  over      3.5  4.00  True
+11   over/under  over      4.5  9.00  True
+39   over/under  over      2.5  2.24  True
+319  over/under  over      3.5  4.00  True
+375  over/under  over      2.5  2.24  True
+412  over/under  over      3.5  4.10  True
+490  over/under  over      3.5  4.00  True
+673  over/under  over      3.5  4.00  True
+763  over/under  over      3.5  4.00  True
+INFO:utils:Allocation won:
+0     6.572107e-16
+1     1.497012e-22
+4     5.304049e-01
+11    1.497012e-22
+14    1.580579e-02
+15    1.497012e-22
+19    1.497012e-22
+22    1.497012e-22
+24    1.891461e-15
+dtype: float64
+INFO:__main__:game_id: 2740887; scenario: 4 : 1; financial_return: 1.2235120443473666
+INFO:__main__:solution:
+[0.0, 0.0, 0.002, 0.0, 0.53, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.016, 0.0, 0.429, 0.0, 0.0, 0.0, 0.011, 0.0, 0.0, 0.0, 0.0, 0.012]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+         Market Bet Scenario       Odd  flag
+506  both_score  no           1.869565  True
+INFO:utils:Allocation won:
+2    0.579916
+dtype: float64
+INFO:__main__:game_id: 2971948; scenario: 0 : 0; financial_return: 1.084191223213348
+INFO:__main__:solution:
+[0.0, 0.414, 0.58, 0.0, 0.0, 0.006]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
@@ -102,158 +110,45 @@ Columns: [Market, Bet, Scenario, Odd, flag]
 Index: []
 INFO:utils:Allocation won:
 Series([], dtype: float64)
-INFO:__main__:game_id: 4698296; scenario: 0 : 2; financial_return: 0.0
+INFO:__main__:game_id: 4396143; scenario: 0 : 1; financial_return: 0.0
 INFO:__main__:solution:
-[0.004, 0.0, 0.004, 0.004, 0.215, 0.004, 0.0, 0.004, 0.0, 0.003, 0.185, 0.004, 0.004, 0.0, 0.182, 0.004, 0.0, 0.182, 0.004, 0.196, 0.004]
+[0.0, 0.0, 0.765, 0.0, 0.235, 0.0, 0.0, 0.0, 0.0, 0.0]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
          Market   Bet Scenario    Odd  flag
-27   over/under  over      2.5  3.250  True
-57   over/under  over      2.5  3.300  True
-59   over/under  over      3.5  7.500  True
-131  over/under  over      1.5  1.770  True
-133  over/under  over      2.5  3.180  True
-135  over/under  over      3.5  6.500  True
-159  both_score   yes           2.625  True
-191  over/under  over      1.5  1.770  True
-193  over/under  over      2.5  3.180  True
-195  over/under  over      3.5  7.050  True
-252  over/under  over      2.5  3.200  True
-339  over/under  over      0.5  1.220  True
-341  over/under  over      1.5  1.800  True
-343  over/under  over      2.5  3.150  True
-345  over/under  over      3.5  6.750  True
-353  both_score   yes           2.600  True
-377  over/under  over      1.5  1.770  True
-379  over/under  over      2.5  3.180  True
-528  over/under  over      2.5  3.150  True
-530  over/under  over      3.5  6.400  True
-587  over/under  over      1.5  1.770  True
-589  over/under  over      2.5  3.180  True
-591  over/under  over      3.5  6.500  True
-615  both_score   yes           2.625  True
-642  over/under  over      0.5  1.220  True
-644  over/under  over      1.5  1.800  True
-646  over/under  over      2.5  3.150  True
-648  over/under  over      3.5  6.750  True
-656  both_score   yes           2.600  True
-683  over/under  over      0.5  1.210  True
-685  over/under  over      1.5  1.760  True
-689  over/under  over      3.5  6.500  True
-727  over/under  over      2.5  3.300  True
-729  over/under  over      3.5  7.500  True
-779  over/under  over      2.5  3.280  True
-781  over/under  over      3.5  6.850  True
-818  over/under  over      2.5  3.100  True
-830  over/under  over      2.5  3.500  True
-832  over/under  over      3.5  8.000  True
-844      spread  home    +1/-1  1.440  True
-850  both_score   yes           2.620  True
-856  over/under  over      2.5  3.180  True
-858  over/under  over      3.5  6.500  True
-864  both_score   yes           2.625  True
-868  over/under  over      1.5  1.750  True
-870  over/under  over      2.5  3.250  True
-872  over/under  over      3.5  6.500  True
-880  over/under  over      1.5  1.740  True
-882  over/under  over      2.5  3.150  True
-884  over/under  over      1.5  1.750  True
+31   over/under  over      2.5   2.60  True
+275  over/under  over      2.5   2.55  True
+292  over/under  over      2.5   2.60  True
+467  over/under  over      2.5   2.60  True
+497  over/under  over      2.5   2.55  True
+511      spread  away    +2/-2  10.00  True
+707  over/under  over      2.5   2.60  True
+764  over/under  over      2.5   2.55  True
 INFO:utils:Allocation won:
-0     9.548137e-06
-1     9.909484e-06
-2     1.422047e-08
-5     7.080113e-04
-6     9.064570e-06
-7     2.426601e-08
-8     8.257403e-05
-9     7.080183e-04
-10    9.064538e-06
-11    1.807962e-08
-13    9.200085e-06
-14    2.254703e-01
-15    7.876320e-04
-16    8.864663e-06
-17    2.122533e-08
-18    7.932145e-05
-19    7.080034e-04
-20    9.064599e-06
-21    8.864679e-06
-22    2.560180e-08
-24    7.079958e-04
-25    9.064656e-06
-26    2.426576e-08
-27    8.257459e-05
-29    2.254694e-01
-30    7.876283e-04
-31    8.864645e-06
-32    2.122532e-08
-33    7.932164e-05
-34    1.769705e-01
-35    6.831418e-04
-36    2.426579e-08
-37    9.909520e-06
-38    1.422040e-08
-42    9.763294e-06
-43    2.011957e-08
-44    8.541502e-06
-45    1.149746e-05
-46    1.089820e-08
-49    3.643636e-01
-50    8.191460e-05
-51    9.064730e-06
-52    2.426527e-08
-53    8.257269e-05
-54    6.590868e-04
-55    9.547974e-06
-56    2.426542e-08
-57    6.357931e-04
-58    8.864596e-06
-59    6.590723e-04
+3     5.452552e-01
+12    8.462452e-06
+15    3.175143e-13
+19    2.712210e-05
+22    1.223669e-11
+25    4.590167e-02
+31    7.760242e-02
+34    1.410136e-03
 dtype: float64
-INFO:__main__:game_id: 5255136; scenario: 3 : 1; financial_return: 1.3032186090944136
+INFO:__main__:game_id: 2974330; scenario: 0 : 3; financial_return: 2.082134458832769
 INFO:__main__:solution:
-[0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.225, 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.0, 0.225, 0.001, 0.0, 0.0, 0.0, 0.177, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.364, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.001, 0.0, 0.001]
+[0.0, 0.0, 0.0, 0.545, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.046, 0.0, 0.0, 0.0, 0.0, 0.293, 0.078, 0.018, 0.0, 0.001, 0.018, 0.0, 0.0, 0.0]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
-         Market Bet Scenario    Odd  flag
-182  both_score  no           1.736  True
+          Market   Bet Scenario   Odd  flag
+1066  over/under  over      2.5  2.15  True
 INFO:utils:Allocation won:
-6    0.655338
+39    0.521942
 dtype: float64
-INFO:__main__:game_id: 2897217; scenario: 3 : 0; financial_return: 1.1376661011888503
+INFO:__main__:game_id: 4396158; scenario: 2 : 1; financial_return: 1.1221744862707794
 INFO:__main__:solution:
-[0.029, 0.075, 0.003, 0.0, 0.0, 0.0, 0.655, 0.0, 0.0, 0.0, 0.075, 0.003, 0.0, 0.051, 0.029, 0.002, 0.0, 0.0, 0.075, 0.003, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-         Market   Bet Scenario   Odd  flag
-35   over/under  over      3.5  4.70  True
-111  over/under  over      3.5  4.74  True
-192  over/under  over      3.5  4.74  True
-368  over/under  over      2.5  2.57  True
-370  over/under  over      3.5  4.75  True
-411  over/under  over      3.5  4.70  True
-486  over/under  over      3.5  4.80  True
-681  over/under  over      3.5  4.74  True
-771  over/under  over      3.5  4.70  True
-826  over/under  over      3.5  4.80  True
-INFO:utils:Allocation won:
-0     0.004253
-4     0.004492
-8     0.004492
-10    0.377249
-11    0.004554
-12    0.004253
-16    0.004876
-20    0.004492
-22    0.004253
-24    0.004876
-dtype: float64
-INFO:__main__:game_id: 4698309; scenario: 3 : 1; financial_return: 1.1618168264076687
-INFO:__main__:solution:
-[0.004, 0.0, 0.0, 0.0, 0.004, 0.193, 0.0, 0.0, 0.004, 0.193, 0.377, 0.005, 0.004, 0.0, 0.0, 0.0, 0.005, 0.0, 0.0, 0.0, 0.004, 0.193, 0.004, 0.0, 0.005, 0.0, 0.0]
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.367, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.077, 0.0, 0.0, 0.0, 0.033, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.522, 0.0]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
@@ -262,112 +157,110 @@ Columns: [Market, Bet, Scenario, Odd, flag]
 Index: []
 INFO:utils:Allocation won:
 Series([], dtype: float64)
-INFO:__main__:game_id: 5254883; scenario: 2 : 0; financial_return: 0.0
+INFO:__main__:game_id: 2924268; scenario: 2 : 1; financial_return: 0.0
 INFO:__main__:solution:
-[0.332, 0.02, 0.001, 0.0, 0.0, 0.001, 0.144, 0.001, 0.0, 0.0, 0.0, 0.0, 0.117, 0.332, 0.02, 0.001, 0.0, 0.001, 0.03, 0.001]
+[0.0, 0.684, 0.1, 0.0, 0.141, 0.042, 0.0, 0.033]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
-         Market   Bet Scenario   Odd  flag
-1           h2h  draw           3.10  True
-402  over/under  over      1.5  1.72  True
+    Market   Bet Scenario   Odd  flag
+502    h2h  home           2.35  True
 INFO:utils:Allocation won:
-0     0.288556
-11    0.607856
+3    0.408826
 dtype: float64
-INFO:__main__:game_id: 2877372; scenario: 1 : 1; financial_return: 1.94003559568571
+INFO:__main__:game_id: 2875743; scenario: 2 : 1; financial_return: 0.9607402545880891
 INFO:__main__:solution:
-[0.289, 0.014, 0.001, 0.0, 0.018, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.608, 0.018, 0.001, 0.0, 0.014, 0.001, 0.0, 0.0, 0.018, 0.001, 0.0, 0.019, 0.001, 0.0, 0.0, 0.0, 0.0, 0.0]
+[0.0, 0.308, 0.261, 0.409, 0.022]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], dtype: float64)
+INFO:__main__:game_id: 3007956; scenario: 1 : 1; financial_return: 0.0
+INFO:__main__:solution:
+[0.682, 0.312, 0.0, 0.0, 0.006]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], dtype: float64)
+INFO:__main__:game_id: 2832544; scenario: 1 : 1; financial_return: 0.0
+INFO:__main__:solution:
+[0.0, 0.0, 0.451, 0.0, 0.0, 0.036, 0.0, 0.0, 0.0, 0.004, 0.0, 0.0, 0.504, 0.0, 0.0, 0.004, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], dtype: float64)
+INFO:__main__:game_id: 4396097; scenario: 1 : 1; financial_return: 0.0
+INFO:__main__:solution:
+[0.585, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.257, 0.152, 0.0, 0.0, 0.0, 0.004, 0.0, 0.002, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], dtype: float64)
+INFO:__main__:game_id: 4396107; scenario: 2 : 0; financial_return: 0.0
+INFO:__main__:solution:
+[0.768, 0.0, 0.0, 0.0, 0.0, 0.0, 0.168, 0.063, 0.0, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], dtype: float64)
+INFO:__main__:game_id: 4396100; scenario: 1 : 0; financial_return: 0.0
+INFO:__main__:solution:
+[0.769, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.153, 0.073, 0.0, 0.004, 0.0, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], dtype: float64)
+INFO:__main__:game_id: 4698294; scenario: 1 : 0; financial_return: 0.0
+INFO:__main__:solution:
+[0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
          Market   Bet Scenario  Odd  flag
-5    over/under  over      1.5  1.6  True
-236  over/under  over      1.5  1.6  True
-490  over/under  over      1.5  1.6  True
+402  over/under  over      3.5  3.5  True
+408      spread  home    -2/+2  4.5  True
 INFO:utils:Allocation won:
-0     0.297166
-12    0.297168
-24    0.297164
+20    0.129461
+22    0.211270
 dtype: float64
-INFO:__main__:game_id: 2738740; scenario: 2 : 0; financial_return: 1.426395902835263
+INFO:__main__:game_id: 2740905; scenario: 4 : 0; financial_return: 1.4038313862552916
 INFO:__main__:solution:
-[0.297, 0.003, 0.0, 0.0, 0.002, 0.0, 0.003, 0.0, 0.0, 0.006, 0.0, 0.08, 0.297, 0.004, 0.0, 0.0, 0.0, 0.002, 0.0, 0.0, 0.0, 0.003, 0.0, 0.0, 0.297, 0.003, 0.0, 0.0, 0.0, 0.003, 0.0, 0.0]
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.655, 0.0, 0.0, 0.0, 0.0, 0.0, 0.004, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.129, 0.0, 0.211, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
+   Market Bet Scenario   Odd  flag
+41  exact   o    2 : 1  17.0  True
 INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 4698335; scenario: 2 : 0; financial_return: 0.0
-INFO:__main__:solution:
-[0.001, 0.0, 0.0, 0.0, 0.013, 0.0, 0.0, 0.0, 0.008, 0.0, 0.0, 0.0, 0.0, 0.008, 0.0, 0.0, 0.911, 0.008, 0.0, 0.013, 0.0, 0.0, 0.0, 0.004, 0.009, 0.0, 0.0, 0.0, 0.0, 0.008, 0.0, 0.0, 0.013, 0.0, 0.0, 0.0, 0.008, 0.0, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-     Market   Bet Scenario    Odd  flag
-193  spread  home    +2/-2  1.063  True
-INFO:utils:Allocation won:
-6    0.99974
+2    0.179668
 dtype: float64
-INFO:__main__:game_id: 2832543; scenario: 0 : 0; financial_return: 1.0627232499390602
+INFO:__main__:game_id: 4396149; scenario: 2 : 1; financial_return: 3.054349805497096
 INFO:__main__:solution:
-[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-         Market   Bet Scenario     Odd  flag
-73   over/under  over      3.5   5.100  True
-75   over/under  over      4.5  11.500  True
-147  over/under  over      2.5   2.525  True
-149  over/under  over      3.5   4.940  True
-151  over/under  over      4.5  10.500  True
-228  over/under  over      2.5   2.525  True
-230  over/under  over      3.5   4.940  True
-232  over/under  over      4.5  10.500  True
-373  over/under  over      2.5   2.650  True
-375  over/under  over      3.5   4.950  True
-377  over/under  over      4.5  10.750  True
-415  over/under  over      3.5   5.100  True
-417  over/under  over      4.5  11.500  True
-490  over/under  over      3.5   5.000  True
-602  over/under  over      3.5   4.950  True
-604  over/under  over      4.5  11.000  True
-681  over/under  over      2.5   2.525  True
-683  over/under  over      3.5   4.940  True
-685  over/under  over      4.5  10.500  True
-743  over/under  over      3.5   5.100  True
-745  over/under  over      4.5  11.500  True
-939  over/under  over      4.5  11.000  True
-INFO:utils:Allocation won:
-2     0.014257
-3     0.000202
-5     0.191952
-6     0.012035
-7     0.000183
-9     0.191952
-10    0.012035
-11    0.000183
-12    0.306387
-13    0.012163
-14    0.000187
-15    0.014257
-16    0.000202
-17    0.012825
-18    0.012163
-19    0.000192
-21    0.191954
-22    0.012035
-23    0.000183
-24    0.014257
-25    0.000202
-28    0.000192
-dtype: float64
-INFO:__main__:game_id: 4698328; scenario: 2 : 3; financial_return: 2.8659327928325804
-INFO:__main__:solution:
-[0.0, 0.0, 0.014, 0.0, 0.0, 0.192, 0.012, 0.0, 0.0, 0.192, 0.012, 0.0, 0.306, 0.012, 0.0, 0.014, 0.0, 0.013, 0.012, 0.0, 0.0, 0.192, 0.012, 0.0, 0.014, 0.0, 0.0, 0.0, 0.0]
+[0.002, 0.118, 0.18, 0.06, 0.0, 0.0, 0.468, 0.001, 0.0, 0.036, 0.0, 0.036, 0.021, 0.0, 0.0, 0.0, 0.08]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:utils:Bets won:
@@ -376,126 +269,9 @@ Columns: [Market, Bet, Scenario, Odd, flag]
 Index: []
 INFO:utils:Allocation won:
 Series([], dtype: float64)
-INFO:__main__:game_id: 2983657; scenario: 0 : 1; financial_return: 0.0
+INFO:__main__:game_id: 4698267; scenario: 1 : 1; financial_return: 0.0
 INFO:__main__:solution:
-[0.001, 0.0, 0.349, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.012, 0.001, 0.0, 0.0, 0.012, 0.001, 0.01, 0.0, 0.0, 0.349, 0.015, 0.0, 0.012, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.208, 0.009, 0.0, 0.01, 0.0, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
-INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 2961961; scenario: 1 : 1; financial_return: 0.0
-INFO:__main__:solution:
-[0.006, 0.089, 0.804, 0.094, 0.006, 0.001]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
-INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 2790513; scenario: 1 : 0; financial_return: 0.0
-INFO:__main__:solution:
-[0.015, 0.0, 0.453, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.453, 0.055, 0.0, 0.023, 0.0, 0.0, 0.0, 0.0, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-        Market   Bet Scenario   Odd  flag
-42  over/under  over      2.5  2.26  True
-INFO:utils:Allocation won:
-2    0.914724
-dtype: float64
-INFO:__main__:game_id: 2795203; scenario: 2 : 1; financial_return: 2.067276418841077
-INFO:__main__:solution:
-[0.003, 0.0, 0.915, 0.08, 0.002, 0.0, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-         Market   Bet Scenario   Odd  flag
-369  over/under  over      2.5  2.26  True
-INFO:utils:Allocation won:
-15    0.532506
-dtype: float64
-INFO:__main__:game_id: 2748128; scenario: 2 : 1; financial_return: 1.203462885601007
-INFO:__main__:solution:
-[0.018, 0.001, 0.049, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.051, 0.008, 0.04, 0.533, 0.017, 0.01, 0.001, 0.026, 0.0, 0.0, 0.0, 0.0, 0.051, 0.008, 0.04, 0.008, 0.0, 0.051, 0.008, 0.04]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-         Market   Bet Scenario   Odd  flag
-35   over/under  over      3.5  3.30  True
-37   over/under  over      4.5  6.50  True
-312  over/under  over      3.5  3.20  True
-500  over/under  over      3.5  3.30  True
-502  over/under  over      4.5  6.50  True
-561  over/under  over      3.5  3.25  True
-563  over/under  over      4.5  6.50  True
-567      spread  home    -2/+2  4.00  True
-783  over/under  over      3.5  3.30  True
-785  over/under  over      4.5  6.50  True
-INFO:utils:Allocation won:
-1     0.047089
-2     0.004289
-13    0.038364
-20    0.047089
-21    0.004289
-24    0.042514
-25    0.004289
-26    0.304531
-35    0.047089
-36    0.004289
-dtype: float64
-INFO:__main__:game_id: 2974340; scenario: 4 : 1; financial_return: 2.0567420804647187
-INFO:__main__:solution:
-[0.0, 0.047, 0.004, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.042, 0.038, 0.036, 0.003, 0.002, 0.064, 0.003, 0.0, 0.047, 0.004, 0.0, 0.088, 0.043, 0.004, 0.305, 0.0, 0.0, 0.036, 0.003, 0.002, 0.064, 0.003, 0.0, 0.047, 0.004, 0.0, 0.0, 0.036, 0.003, 0.002, 0.064, 0.003, 0.0]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
-INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 2762915; scenario: 2 : 1; financial_return: 0.0
-INFO:__main__:solution:
-[0.99, 0.01]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
-INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 4698396; scenario: 1 : 1; financial_return: 0.0
-INFO:__main__:solution:
-[0.0, 0.159, 0.068, 0.002, 0.001, 0.0, 0.002, 0.0, 0.002, 0.075, 0.002, 0.002, 0.0, 0.159, 0.068, 0.002, 0.001, 0.0, 0.0, 0.002, 0.001, 0.064, 0.075, 0.002, 0.0, 0.002, 0.0, 0.159, 0.068, 0.002, 0.001, 0.002, 0.0, 0.001, 0.075, 0.002, 0.001]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
-INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 4396258; scenario: 1 : 2; financial_return: 0.0
-INFO:__main__:solution:
-[0.0, 0.154, 0.009, 0.0, 0.186, 0.01, 0.0, 0.009, 0.0, 0.04, 0.377, 0.186, 0.01, 0.0, 0.009, 0.0, 0.0, 0.009]
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:__main__:----------------------------------------------------------------------------------------------------
-INFO:utils:Bets won:
-Empty DataFrame
-Columns: [Market, Bet, Scenario, Odd, flag]
-Index: []
-INFO:utils:Allocation won:
-Series([], dtype: float64)
-INFO:__main__:game_id: 4698370; scenario: 0 : 2; financial_return: 0.0
-INFO:__main__:solution:
-[0.004, 0.0, 0.0, 0.0, 0.004, 0.0, 0.0, 0.004, 0.0, 0.004, 0.503, 0.004, 0.0, 0.004, 0.0, 0.0, 0.0, 0.004, 0.0, 0.004, 0.0, 0.004, 0.0, 0.004, 0.0, 0.0, 0.004, 0.0, 0.0, 0.445, 0.004, 0.0, 0.0, 0.004, 0.0, 0.0, 0.0, 0.003]
+[0.033, 0.0, 0.0, 0.0, 0.0, 0.0, 0.005, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.386, 0.0, 0.57, 0.0, 0.0, 0.0, 0.005, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.002, 0.0]
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:----------------------------------------------------------------------------------------------------
 INFO:__main__:END
