@@ -8,6 +8,7 @@ from itertools import chain
 def load_metadata_artefacts(file_path: str):
     metadata = pd.read_parquet(file_path)
     metadata = metadata[~metadata.Home_score.isna()]
+    metadata['Datetime'] = pd.to_datetime(metadata['Datetime']).dt.date
     metadata['Home_score'] = metadata.Home_score.apply(int)
     metadata['Away_score'] = metadata.Away_score.apply(int)
     metadata['Outcome'] = metadata.apply(lambda x: f"{str(x['Home_score'])} : { str(x['Away_score'])}", axis=1)
@@ -36,7 +37,7 @@ def load_odds(file_path):
 def join_metadata(df: pd.DataFrame, metadata: pd.DataFrame) -> pd.DataFrame:
     
     df = pd.merge(left=df,
-                  right=metadata[['GameId', 'Home', 'Away']],
+                  right=metadata[['GameId', 'Home', 'Away', 'Datetime']],
                   on=['GameId'],
                   how='left') 
     
@@ -153,7 +154,6 @@ def apply_final_treatment(
     df_odds = pd.merge(df_odds, map_bet, on=['Market', 'Bet', 'Scenario'], how='left')
 
     df_odds = df_odds.dropna(subset=['BetMap']).reset_index(drop=True)
-
 
     def add_real_prob(x: list, df_real_prob: pd.DataFrame) -> float:
         """

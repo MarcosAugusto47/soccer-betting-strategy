@@ -22,58 +22,68 @@ logger = logging.getLogger(__name__)
 
 logger.info("RUN")
 
-metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata.parquet")
+metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata-with-date.parquet")
 odds = load_odds("data/odds.parquet")
+odds = join_metadata(odds, metadata)
 
 track_record_list = []
 
 count = 0
 
-for game_id in GAMES_IDS[70:140]:
-    
+for group_name, group_data in odds.groupby(['Datetime']):
+
     count+=1
     print(f"count: {count}")
 
-    odds_sample = odds[(odds.GameId==game_id)]
-    odds_sample = join_metadata(odds_sample, metadata)
+    if count > 10:
+        break
 
-    df = GameProbs(game_id).build_dataframe()
+    print(f"Datetime: {group_name}")
+    games_ids = group_data['GameId'].unique()
+    
+    for game_id in games_ids:
 
-    odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
-    
-    print(f"len(odds_sample): {len(odds_sample)}; game_id: {game_id}; count: {count}")
-    #logger.info(f"len(odds_sample): {len(odds_sample)}")
-    
-    if len(odds_sample) > 80: # > 50
-        continue
+        odds_sample = odds[(odds.GameId==game_id)]
+        #odds_sample = join_metadata(odds_sample, metadata)
 
-    odds_favorable = np.array(odds_sample['Odd'])
-    real_prob_favorable = np.array(odds_sample['real_prob'])
-    event_favorable = list(odds_sample['BetMap'].values)
-    
-    try:
-        solution = minimize_analytical(public_odd=odds_favorable,
-                                       real_probabilities=real_prob_favorable,
-                                       event=event_favorable,
-                                       df_prob=df)
-    
-    
-    except ValueError:
-        continue
-       
-    solution = softmax(solution)
-    scenario = gameid_to_outcome[game_id]
-    financial_return = get_bet_return(df=odds_sample, allocation_array=solution, scenario=scenario)
+        df = GameProbs(game_id).build_dataframe()
 
-    logger.info(f"game_id: {game_id}; scenario: {scenario}; financial_return: {financial_return}")
-    logger.info(f"solution:\n{[round(num, 3) for num in solution]}")
-    logger.info('-' * 100)
-    logger.info('-' * 100)
+        odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
+        
+        print(f"len(odds_sample): {len(odds_sample)}; game_id: {game_id}; count: {count}")
+        #logger.info(f"len(odds_sample): {len(odds_sample)}")
+        
+        if len(odds_sample) > 80: # > 50
+            continue
 
-    track_record = {}
-    track_record['game_id'] = str(game_id)
-    track_record['return'] = financial_return
-    track_record_list.append(track_record)
+        odds_favorable = np.array(odds_sample['Odd'])
+        real_prob_favorable = np.array(odds_sample['real_prob'])
+        event_favorable = list(odds_sample['BetMap'].values)
+        
+        try:
+            solution = minimize_analytical(public_odd=odds_favorable,
+                                           real_probabilities=real_prob_favorable,
+                                           event=event_favorable,
+                                           df_prob=df)
+        
+        
+        except ValueError:
+            continue
+        
+        solution = softmax(solution)
+        scenario = gameid_to_outcome[game_id]
+        financial_return = get_bet_return(df=odds_sample, allocation_array=solution, scenario=scenario)
+
+        logger.info(f"game_id: {game_id}; scenario: {scenario}; financial_return: {financial_return}")
+        logger.info(f"solution:\n{[round(num, 3) for num in solution]}")
+        logger.info('-' * 100)
+        logger.info('-' * 100)
+
+        track_record = {}
+        track_record['game_id'] = str(game_id)
+        track_record['return'] = financial_return
+        track_record['Datetime'] = group_name
+        track_record_list.append(track_record)
 
 logger.info("END")
 pd.DataFrame(track_record_list).to_csv("track_record.csv", index=False)
