@@ -4,6 +4,7 @@ import logging
 
 from scipy.optimize import minimize
 from itertools import chain
+from typing import Dict
 
 #logger = logging.getLogger(__name__)
 
@@ -15,7 +16,8 @@ def second_moment(allocation: list,
                   public_odd: np.array,
                   real_probabilities: np.array,
                   event: np.array,
-                  df_prob: pd.DataFrame,
+                  games_ids: np.array,
+                  df_probs_dict: Dict[str, pd.DataFrame],
 ) -> float:
     """
     Computes the second moment of the random variable.
@@ -54,12 +56,32 @@ def second_moment(allocation: list,
                 event_i = np.transpose(np.array(event[i]).reshape(7,7))
                 # Get event i 7x7 matrix
                 event_j = np.transpose(np.array(event[j]).reshape(7,7))
-                # Get events intersections, both matrices are filled with 0's or 1's
-                event_intersection_matrix = event_i * event_j
-                # Get event insercetions mapped real probabilities
-                event_intersection_matrix_prob = event_intersection_matrix * df_prob.to_numpy()
-                # Compute the final events intersection probability
-                prob_ij = sum(list(chain(*event_intersection_matrix_prob)))
+                
+                # for events from a single game, we get the intersection. So
+                # {A} intersection with {B} is, in fact, the soccer scenarios
+                # common in both events
+                if games_ids[i] == games_ids[j]:
+                
+                    # Get events intersection, both matrices are filled with 0's or 1's
+                    event_intersection_matrix = event_i * event_j
+                    # Get events inserction mapped real probabilities
+                    event_intersection_matrix_prob = event_intersection_matrix * df_probs_dict[games_ids[i]].to_numpy()
+                    # Compute the final events intersection probability
+                    prob_ij = sum(list(chain(*event_intersection_matrix_prob)))
+                
+                # for events from different games, we treat them indepently. So
+                # P({A} intersection with {B}) = P({A}) * P({B})
+                else:
+                    # Get probablities matrix of event i of associated game
+                    event_i_prob = event_i * df_probs_dict[games_ids[i]].to_numpy()
+                    # Get probabilities matrix of event j of associated game, different from game above
+                    event_j_prob = event_j * df_probs_dict[games_ids[j]].to_numpy()
+                    # Compute probability of event i
+                    prob_i = sum(list(chain(*event_i_prob)))
+                    # Compute probability of event j
+                    prob_j = sum(list(chain(*event_j_prob)))
+                    # Compute of the intersection as the product
+                    prob_ij = prob_i * prob_j
 
                 term2_list.append(theta_ij*prob_ij)
     
@@ -82,7 +104,8 @@ def compute_objective_via_analytical(
     public_odd: np.ndarray,
     real_probabilities: np.ndarray,
     event: np.ndarray,
-    df_prob: pd.DataFrame
+    games_ids: np.ndarray,
+    df_probs_dict: Dict[str, pd.DataFrame],
 ) -> np.float64:
 
     x = softmax(x)
@@ -97,7 +120,8 @@ def compute_objective_via_analytical(
                                      public_odd=public_odd,
                                      real_probabilities=real_probabilities,
                                      event=event,
-                                     df_prob=df_prob)
+                                     games_ids=games_ids,
+                                     df_probs_dict=df_probs_dict)
 
     my_sigma = np.sqrt(variance(my_second_moment, my_expectation))
     #print(f"my_sigma: {my_sigma}")
@@ -111,12 +135,12 @@ def compute_objective_via_analytical(
     return -output
 
 
-def minimize_analytical(public_odd, real_probabilities, event, df_prob):
+def minimize_analytical(public_odd, real_probabilities, event, games_ids, df_probs_dict):
     
     # Set initial guess
     x0 = np.zeros(len(public_odd))
    
-    args = (public_odd, real_probabilities, event, df_prob)
+    args = (public_odd, real_probabilities, event, games_ids, df_probs_dict)
     
     res = minimize(fun=compute_objective_via_analytical,
                    x0=x0,

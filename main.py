@@ -35,14 +35,18 @@ for group_name, group_data in odds.groupby(['Datetime']):
     count+=1
     print(f"count: {count}")
 
-    if count > 2:
+    if count > 20:
         break
 
     games_ids = group_data['GameId'].unique()
     
     logger.info(f"Datetime: {group_name} with {len(games_ids)} games")
 
-    list_dfs = []
+    # Initialize dict to store dataframes of favorable bet opportunities
+    odds_dict = {}
+
+    # Initialze dict to store 7x7 matrices/dataframes of real probabilities 
+    df_probs_dict = {}
 
     for game_id in games_ids:
 
@@ -52,27 +56,33 @@ for group_name, group_data in odds.groupby(['Datetime']):
 
         odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
         
-        if len(odds_sample) > 50: # > 50
-            break
+        #if len(odds_sample) > 50: # > 50
+        #    break
         
-        logger.info(f"game_id: {game_id}")
-        logger.info(f"odds_sample.shape: {odds_sample.shape}")
+        logger.info(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
 
-        list_dfs.append(odds_sample)
+        odds_dict[game_id] = odds_sample
+        df_probs_dict[game_id] = df
 
-    odds_dt = pd.concat(list_dfs)
+    odds_dt = pd.concat(odds_dict.values())
+
+    if len(odds_dt) > 60: # > 50
+        continue
     
     logger.info(f"odds_dt.shape: {odds_dt.shape}")
+    logger.info(f"len(df_probs_dict): {len(df_probs_dict)}")
 
     odds_favorable = np.array(odds_dt['Odd'])
     real_prob_favorable = np.array(odds_dt['real_prob'])
     event_favorable = list(odds_dt['BetMap'].values)
+    games_ids = np.array(odds_dt['GameId'])
         
     try:
         solution = minimize_analytical(public_odd=odds_favorable,
                                        real_probabilities=real_prob_favorable,
                                        event=event_favorable,
-                                       df_prob=df)
+                                       games_ids=games_ids,
+                                       df_probs_dict=df_probs_dict)
     
     
     except ValueError:
@@ -80,10 +90,16 @@ for group_name, group_data in odds.groupby(['Datetime']):
     
     solution = softmax(solution)
 
+    logger.info(f"len(solution): {len(solution)}")
+
     odds_dt['solution'] = solution
 
     for game_id, game_data in odds_dt.groupby(['GameId'], sort=False):
         scenario = gameid_to_outcome[game_id]
+        logger.info(f"game_data.shape: {game_data.shape}")
+        logger.info(f"len(game_data.solution): {len(game_data.solution)}")
+        
+
         financial_return = get_bet_return(df=game_data, allocation_array=game_data.solution, scenario=scenario)
 
         logger.info(f"game_id: {game_id}; scenario: {scenario}; financial_return: {financial_return}")

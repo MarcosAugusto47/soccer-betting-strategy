@@ -1,9 +1,294 @@
 INFO:__main__:RUN
 INFO:__main__:Datetime: 2019-04-27 with 3 games
-INFO:__main__:game_id: 2738735
-INFO:__main__:odds_sample.shape: (25, 13)
-INFO:__main__:game_id: 2738739
-INFO:__main__:odds_sample.shape: (16, 13)
-INFO:__main__:game_id: 2738740
-INFO:__main__:odds_sample.shape: (32, 13)
-INFO:__main__:odds_dt.shape: (73, 13)
+INFO:__main__:game_id: 2738735, odds_sample.shape: (25, 13)
+INFO:__main__:game_id: 2738739, odds_sample.shape: (16, 13)
+INFO:__main__:game_id: 2738740, odds_sample.shape: (32, 13)
+INFO:__main__:Datetime: 2019-04-28 with 7 games
+INFO:__main__:game_id: 2740879, odds_sample.shape: (6, 13)
+INFO:__main__:game_id: 2740882, odds_sample.shape: (17, 13)
+INFO:__main__:game_id: 2740887, odds_sample.shape: (26, 13)
+INFO:__main__:game_id: 2740886, odds_sample.shape: (17, 13)
+INFO:__main__:game_id: 2740885, odds_sample.shape: (12, 13)
+INFO:__main__:game_id: 2740906, odds_sample.shape: (7, 13)
+INFO:__main__:game_id: 2740905, odds_sample.shape: (35, 13)
+INFO:__main__:Datetime: 2019-05-01 with 5 games
+INFO:__main__:game_id: 2743107, odds_sample.shape: (42, 13)
+INFO:__main__:game_id: 2743108, odds_sample.shape: (70, 13)
+INFO:__main__:game_id: 2743106, odds_sample.shape: (5, 13)
+INFO:__main__:game_id: 2743111, odds_sample.shape: (50, 13)
+INFO:__main__:game_id: 2743110, odds_sample.shape: (21, 13)
+INFO:__main__:Datetime: 2019-05-02 with 5 games
+INFO:__main__:game_id: 2744172, odds_sample.shape: (23, 13)
+INFO:__main__:game_id: 2744174, odds_sample.shape: (81, 13)
+INFO:__main__:game_id: 2744173, odds_sample.shape: (20, 13)
+INFO:__main__:game_id: 2744177, odds_sample.shape: (31, 13)
+INFO:__main__:game_id: 2744178, odds_sample.shape: (15, 13)
+INFO:__main__:Datetime: 2019-05-04 with 2 games
+INFO:__main__:game_id: 2746105, odds_sample.shape: (12, 13)
+INFO:__main__:game_id: 2746106, odds_sample.shape: (34, 13)
+INFO:__main__:odds_dt.shape: (46, 13)
+INFO:__main__:len(df_probs_dict): 2
+INFO:__main__:len(solution): 46
+INFO:__main__:game_data.shape: (12, 14)
+INFO:__main__:len(game_data.solution): 12
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], Name: solution, dtype: float64)
+INFO:__main__:game_id: 2746105; scenario: 1 : 0; financial_return: 0.0
+INFO:__main__:solution:
+[0.024, 0.13, 0.0, 0.0, 0.0, 0.151, 0.0, 0.0, 0.022, 0.0, 0.008, 0.0, 0.034, 0.0, 0.0, 0.0, 0.283, 0.0, 0.0, 0.0, 0.347, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:game_data.shape: (34, 14)
+INFO:__main__:len(game_data.solution): 34
+INFO:utils:Bets won:
+         Market   Bet Scenario    Odd  flag
+37   over/under  over      1.5  1.560  True
+134      spread  away    -1/+1  1.600  True
+178  over/under  over      1.5  1.525  True
+INFO:utils:Allocation won:
+37     2.826111e-01
+134    3.473962e-01
+178    2.618927e-15
+Name: solution, dtype: float64
+INFO:__main__:game_id: 2746106; scenario: 1 : 1; financial_return: 0.9967073058866003
+INFO:__main__:solution:
+[0.024, 0.13, 0.0, 0.0, 0.0, 0.151, 0.0, 0.0, 0.022, 0.0, 0.008, 0.0, 0.034, 0.0, 0.0, 0.0, 0.283, 0.0, 0.0, 0.0, 0.347, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:Datetime: 2019-05-05 with 8 games
+INFO:__main__:game_id: 2748123, odds_sample.shape: (8, 13)
+INFO:__main__:game_id: 2748127, odds_sample.shape: (12, 13)
+INFO:__main__:game_id: 2748130, odds_sample.shape: (4, 13)
+INFO:__main__:game_id: 2748128, odds_sample.shape: (32, 13)
+INFO:__main__:game_id: 2748131, odds_sample.shape: (33, 13)
+INFO:__main__:game_id: 2748129, odds_sample.shape: (10, 13)
+INFO:__main__:game_id: 2748149, odds_sample.shape: (12, 13)
+INFO:__main__:game_id: 2748148, odds_sample.shape: (21, 13)
+INFO:__main__:Datetime: 2019-05-11 with 2 games
+INFO:__main__:game_id: 2762896, odds_sample.shape: (6, 13)
+INFO:__main__:game_id: 2762898, odds_sample.shape: (48, 13)
+INFO:__main__:odds_dt.shape: (54, 13)
+INFO:__main__:len(df_probs_dict): 2
+INFO:__main__:Datetime: 2019-05-12 with 8 games
+INFO:__main__:game_id: 2762915, odds_sample.shape: (2, 13)
+INFO:__main__:game_id: 2762918, odds_sample.shape: (20, 13)
+INFO:__main__:game_id: 2762921, odds_sample.shape: (21, 13)
+INFO:__main__:game_id: 2762920, odds_sample.shape: (5, 13)
+INFO:__main__:game_id: 2762922, odds_sample.shape: (24, 13)
+INFO:__main__:game_id: 2762933, odds_sample.shape: (11, 13)
+INFO:__main__:game_id: 2762932, odds_sample.shape: (28, 13)
+INFO:__main__:game_id: 2762931, odds_sample.shape: (18, 13)
+INFO:__main__:Datetime: 2019-05-18 with 3 games
+INFO:__main__:game_id: 2769657, odds_sample.shape: (14, 13)
+INFO:__main__:game_id: 2769659, odds_sample.shape: (6, 13)
+INFO:__main__:game_id: 2769660, odds_sample.shape: (14, 13)
+INFO:__main__:odds_dt.shape: (34, 13)
+INFO:__main__:len(df_probs_dict): 3
+INFO:__main__:len(solution): 34
+INFO:__main__:game_data.shape: (14, 14)
+INFO:__main__:len(game_data.solution): 14
+INFO:utils:Bets won:
+         Market   Bet Scenario     Odd  flag
+9    over/under  over      3.5   5.000  True
+11   over/under  over      4.5  13.000  True
+314  over/under  over      3.5   5.050  True
+318      spread  home    -2/+2  22.000  True
+402  over/under  over      2.5   2.625  True
+404  over/under  over      3.5   5.500  True
+482  over/under  over      3.5   5.050  True
+486      spread  home    -2/+2  22.000  True
+625  over/under  over      2.5   2.610  True
+627  over/under  over      3.5   5.050  True
+709  over/under  over      3.5   5.050  True
+713      spread  home    -2/+2  22.000  True
+INFO:utils:Allocation won:
+9      1.206946e-26
+11     1.904698e-26
+314    3.550439e-27
+318    1.904698e-26
+402    5.285699e-02
+404    1.904698e-26
+482    1.904698e-26
+486    1.904698e-26
+625    1.904698e-26
+627    1.904698e-26
+709    1.904698e-26
+713    3.816031e-14
+Name: solution, dtype: float64
+INFO:__main__:game_id: 2769657; scenario: 4 : 1; financial_return: 0.13874960966500982
+INFO:__main__:solution:
+[0.0, 0.0, 0.0, 0.0, 0.053, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.135, 0.002, 0.062, 0.0, 0.0, 0.169, 0.004, 0.0, 0.0, 0.336, 0.227, 0.0, 0.0, 0.0, 0.0, 0.0, 0.012, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:game_data.shape: (6, 14)
+INFO:__main__:len(game_data.solution): 6
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], Name: solution, dtype: float64)
+INFO:__main__:game_id: 2769659; scenario: 2 : 1; financial_return: 0.0
+INFO:__main__:solution:
+[0.0, 0.0, 0.0, 0.0, 0.053, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.135, 0.002, 0.062, 0.0, 0.0, 0.169, 0.004, 0.0, 0.0, 0.336, 0.227, 0.0, 0.0, 0.0, 0.0, 0.0, 0.012, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:game_data.shape: (14, 14)
+INFO:__main__:len(game_data.solution): 14
+INFO:utils:Bets won:
+         Market   Bet Scenario   Odd  flag
+41   over/under  over      3.5  4.50  True
+147  both_score    no           1.77  True
+397  over/under  over      2.5  2.39  True
+435  over/under  over      3.5  4.50  True
+467  over/under  over      3.5  4.50  True
+699  over/under  over      3.5  4.50  True
+INFO:utils:Allocation won:
+41     4.421967e-03
+147    3.358078e-01
+397    2.269415e-01
+435    1.904698e-26
+467    1.904698e-26
+699    1.904698e-26
+Name: solution, dtype: float64
+INFO:__main__:game_id: 2769660; scenario: 4 : 0; financial_return: 1.1566690211809938
+INFO:__main__:solution:
+[0.0, 0.0, 0.0, 0.0, 0.053, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.135, 0.002, 0.062, 0.0, 0.0, 0.169, 0.004, 0.0, 0.0, 0.336, 0.227, 0.0, 0.0, 0.0, 0.0, 0.0, 0.012, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:Datetime: 2019-05-19 with 7 games
+INFO:__main__:game_id: 2769665, odds_sample.shape: (12, 13)
+INFO:__main__:game_id: 2769671, odds_sample.shape: (9, 13)
+INFO:__main__:game_id: 2769669, odds_sample.shape: (26, 13)
+INFO:__main__:game_id: 2769670, odds_sample.shape: (3, 13)
+INFO:__main__:game_id: 2769668, odds_sample.shape: (127, 13)
+INFO:__main__:game_id: 2769689, odds_sample.shape: (24, 13)
+INFO:__main__:game_id: 2769690, odds_sample.shape: (21, 13)
+INFO:__main__:Datetime: 2019-05-25 with 2 games
+INFO:__main__:game_id: 2774664, odds_sample.shape: (96, 13)
+INFO:__main__:game_id: 2776377, odds_sample.shape: (12, 13)
+INFO:__main__:Datetime: 2019-05-26 with 6 games
+INFO:__main__:game_id: 2776379, odds_sample.shape: (29, 13)
+INFO:__main__:game_id: 2776378, odds_sample.shape: (19, 13)
+INFO:__main__:game_id: 2776398, odds_sample.shape: (9, 13)
+INFO:__main__:game_id: 2774666, odds_sample.shape: (16, 13)
+INFO:__main__:game_id: 2776397, odds_sample.shape: (54, 13)
+INFO:__main__:game_id: 2774663, odds_sample.shape: (1, 13)
+INFO:__main__:Datetime: 2019-05-27 with 2 games
+INFO:__main__:game_id: 2777281, odds_sample.shape: (12, 13)
+INFO:__main__:game_id: 2777282, odds_sample.shape: (21, 13)
+INFO:__main__:odds_dt.shape: (33, 13)
+INFO:__main__:len(df_probs_dict): 2
+INFO:__main__:len(solution): 33
+INFO:__main__:game_data.shape: (12, 14)
+INFO:__main__:len(game_data.solution): 12
+INFO:utils:Bets won:
+Empty DataFrame
+Columns: [Market, Bet, Scenario, Odd, flag]
+Index: []
+INFO:utils:Allocation won:
+Series([], Name: solution, dtype: float64)
+INFO:__main__:game_id: 2777281; scenario: 1 : 2; financial_return: 0.0
+INFO:__main__:solution:
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.002, 0.0, 0.002, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.212, 0.389, 0.129, 0.0, 0.0, 0.049, 0.007, 0.007, 0.005, 0.0, 0.002, 0.196, 0.0, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:game_data.shape: (21, 14)
+INFO:__main__:len(game_data.solution): 21
+INFO:utils:Bets won:
+         Market   Bet Scenario    Odd  flag
+177  both_score    no           1.850  True
+193      spread  away    -3/+3  1.400  True
+196      spread  away    -2/+2  1.444  True
+INFO:utils:Allocation won:
+177    0.211512
+193    0.388773
+196    0.128509
+Name: solution, dtype: float64
+INFO:__main__:game_id: 2777282; scenario: 1 : 0; financial_return: 1.1211465325808891
+INFO:__main__:solution:
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.002, 0.0, 0.002, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.212, 0.389, 0.129, 0.0, 0.0, 0.049, 0.007, 0.007, 0.005, 0.0, 0.002, 0.196, 0.0, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:Datetime: 2019-06-01 with 2 games
+INFO:__main__:game_id: 2782628, odds_sample.shape: (31, 13)
+INFO:__main__:game_id: 2782629, odds_sample.shape: (16, 13)
+INFO:__main__:odds_dt.shape: (47, 13)
+INFO:__main__:len(df_probs_dict): 2
+INFO:__main__:Datetime: 2019-06-02 with 7 games
+INFO:__main__:game_id: 2784078, odds_sample.shape: (12, 13)
+INFO:__main__:game_id: 2784082, odds_sample.shape: (11, 13)
+INFO:__main__:game_id: 2784079, odds_sample.shape: (5, 13)
+INFO:__main__:game_id: 2784080, odds_sample.shape: (22, 13)
+INFO:__main__:game_id: 2784095, odds_sample.shape: (36, 13)
+INFO:__main__:game_id: 2784081, odds_sample.shape: (149, 13)
+INFO:__main__:game_id: 2784094, odds_sample.shape: (36, 13)
+INFO:__main__:Datetime: 2019-06-07 with 1 games
+INFO:__main__:game_id: 2789461, odds_sample.shape: (55, 13)
+INFO:__main__:odds_dt.shape: (55, 13)
+INFO:__main__:len(df_probs_dict): 1
+INFO:__main__:Datetime: 2019-06-08 with 4 games
+INFO:__main__:game_id: 2790514, odds_sample.shape: (30, 13)
+INFO:__main__:game_id: 2791672, odds_sample.shape: (34, 13)
+INFO:__main__:game_id: 2790513, odds_sample.shape: (22, 13)
+INFO:__main__:game_id: 2790510, odds_sample.shape: (17, 13)
+INFO:__main__:Datetime: 2019-06-09 with 4 games
+INFO:__main__:game_id: 2791670, odds_sample.shape: (29, 13)
+INFO:__main__:game_id: 2791673, odds_sample.shape: (26, 13)
+INFO:__main__:game_id: 2790515, odds_sample.shape: (28, 13)
+INFO:__main__:game_id: 2790511, odds_sample.shape: (14, 13)
+INFO:__main__:Datetime: 2019-06-10 with 1 games
+INFO:__main__:game_id: 2792417, odds_sample.shape: (24, 13)
+INFO:__main__:odds_dt.shape: (24, 13)
+INFO:__main__:len(df_probs_dict): 1
+INFO:__main__:len(solution): 24
+INFO:__main__:game_data.shape: (24, 14)
+INFO:__main__:len(game_data.solution): 24
+INFO:utils:Bets won:
+         Market   Bet Scenario   Odd  flag
+41   over/under  over      3.5  4.80  True
+90   over/under  over      2.5  2.48  True
+182      spread  away    -5/+5  1.40  True
+185      spread  away    -4/+4  1.60  True
+188      spread  away    -3/+3  1.95  True
+424  over/under  over      2.5  2.48  True
+461  over/under  over      3.5  4.80  True
+INFO:utils:Allocation won:
+41     9.193094e-14
+90     5.439131e-26
+182    5.984216e-02
+185    8.500793e-01
+188    3.340939e-02
+424    1.650968e-27
+461    2.917514e-13
+Name: solution, dtype: float64
+INFO:__main__:game_id: 2792417; scenario: 3 : 1; financial_return: 1.50905421080148
+INFO:__main__:solution:
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.85, 0.033, 0.0, 0.0, 0.0, 0.047, 0.0, 0.0, 0.0, 0.0, 0.007, 0.0, 0.0, 0.001, 0.0, 0.0, 0.001]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:Datetime: 2019-06-12 with 1 games
+INFO:__main__:game_id: 2794083, odds_sample.shape: (30, 13)
+INFO:__main__:odds_dt.shape: (30, 13)
+INFO:__main__:len(df_probs_dict): 1
+INFO:__main__:len(solution): 30
+INFO:__main__:game_data.shape: (30, 14)
+INFO:__main__:len(game_data.solution): 30
+INFO:utils:Bets won:
+    Market   Bet Scenario  Odd  flag
+470    h2h  away           2.7  True
+561    h2h  away           2.7  True
+INFO:utils:Allocation won:
+470    0.244325
+561    0.051011
+Name: solution, dtype: float64
+INFO:__main__:game_id: 2794083; scenario: 0 : 1; financial_return: 0.7974080844014497
+INFO:__main__:solution:
+[0.147, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.443, 0.0, 0.0, 0.109, 0.0, 0.0, 0.002, 0.244, 0.0, 0.0, 0.051, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.004, 0.0, 0.0]
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:----------------------------------------------------------------------------------------------------
+INFO:__main__:END
