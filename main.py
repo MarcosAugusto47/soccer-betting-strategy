@@ -35,7 +35,7 @@ for group_name, group_data in odds.groupby(['Datetime']):
     count+=1
     print(f"count: {count}")
 
-    if count > 10:
+    if count > 20:
         break
 
     print(f"Datetime: {group_name}")
