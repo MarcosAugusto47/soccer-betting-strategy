@@ -26,6 +26,8 @@ metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata-with-date.p
 odds = load_odds("data/odds.parquet")
 odds = join_metadata(odds, metadata)
 
+#odds = odds[odds.Datetime.apply(str) >= "2019-10-12"]
+
 track_record_list = []
 
 count = 0
@@ -35,7 +37,7 @@ for group_name, group_data in odds.groupby(['Datetime']):
     count+=1
     print(f"count: {count}")
 
-    if count > 20:
+    if count > 200:
         break
 
     games_ids = group_data['GameId'].unique()
@@ -66,7 +68,7 @@ for group_name, group_data in odds.groupby(['Datetime']):
 
     odds_dt = pd.concat(odds_dict.values())
 
-    if len(odds_dt) > 60: # > 50
+    if len(odds_dt) > 80 or len(odds_dt) <=20: # > 50
         continue
     
     logger.info(f"odds_dt.shape: {odds_dt.shape}")
@@ -110,8 +112,9 @@ for group_name, group_data in odds.groupby(['Datetime']):
         track_record = {}
         track_record['game_id'] = str(game_id)
         track_record['return'] = financial_return
-        track_record['Datetime'] = group_name
+        track_record['n_bets'] = len(game_data)
+        track_record['datetime'] = group_name
         track_record_list.append(track_record)
 
 logger.info("END")
-pd.DataFrame(track_record_list).to_csv("track_record.csv", index=False)
+pd.DataFrame(track_record_list).to_csv("track_record_count_200_powell_01_onlydates_with_bets_between80-20.csv", index=False)
