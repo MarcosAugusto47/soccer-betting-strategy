@@ -37,8 +37,8 @@ for group_name, group_data in odds.groupby(['Datetime']):
     count+=1
     print(f"count: {count}")
 
-    if count > 200:
-        break
+    #if count > 200:
+    #    break
 
     games_ids = group_data['GameId'].unique()
     
@@ -49,6 +49,9 @@ for group_name, group_data in odds.groupby(['Datetime']):
 
     # Initialze dict to store 7x7 matrices/dataframes of real probabilities 
     df_probs_dict = {}
+
+    if len(games_ids) <=1 :
+        continue
 
     for game_id in games_ids:
 
@@ -68,7 +71,10 @@ for group_name, group_data in odds.groupby(['Datetime']):
 
     odds_dt = pd.concat(odds_dict.values())
 
-    if len(odds_dt) > 80 or len(odds_dt) <=20: # > 50
+    #if len(odds_dt) > 80 or len(odds_dt) <=20: # > 50
+    #    continue
+
+    if len(odds_dt) > 400: # > 50
         continue
     
     logger.info(f"odds_dt.shape: {odds_dt.shape}")
@@ -80,6 +86,7 @@ for group_name, group_data in odds.groupby(['Datetime']):
     games_ids = np.array(odds_dt['GameId'])
         
     try:
+        logger.info("Execution of minimization task...")
         solution = minimize_analytical(public_odd=odds_favorable,
                                        real_probabilities=real_prob_favorable,
                                        event=event_favorable,
@@ -88,6 +95,7 @@ for group_name, group_data in odds.groupby(['Datetime']):
     
     
     except ValueError:
+        logger.info("ValueError for minimization task...")
         continue
     
     solution = softmax(solution)
@@ -102,7 +110,9 @@ for group_name, group_data in odds.groupby(['Datetime']):
         logger.info(f"len(game_data.solution): {len(game_data.solution)}")
         
 
-        financial_return = get_bet_return(df=game_data, allocation_array=game_data.solution, scenario=scenario)
+        financial_return = get_bet_return(df=game_data,
+                                          allocation_array=game_data.solution,
+                                          scenario=scenario)
 
         logger.info(f"game_id: {game_id}; scenario: {scenario}; financial_return: {financial_return}")
         logger.info(f"solution:\n{[round(num, 3) for num in solution]}")
@@ -117,4 +127,4 @@ for group_name, group_data in odds.groupby(['Datetime']):
         track_record_list.append(track_record)
 
 logger.info("END")
-pd.DataFrame(track_record_list).to_csv("track_record_count_200_powell_01_onlydates_with_bets_between80-20.csv", index=False)
+pd.DataFrame(track_record_list).to_csv("track_record_count_200_powell_01_onlydates_with_bets_between80-20_all_time_serie.csv", index=False)
