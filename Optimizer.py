@@ -15,9 +15,6 @@ class Optimizer:
         self.maxtime_sec = maxtime_sec
         self.flag=False
 
-    #def fun(self, *args):
-        #define your function to be minimized here
-
     def callback(self, x):
         # callback to terminate if maxtime_sec is exceeded
         self.nit += 1
@@ -31,11 +28,10 @@ class Optimizer:
                           TookTooLong)
             
         else:
-            # you could print elapsed iterations and time
             print("Elapsed: %.3f sec" % elapsed_time)
             print("Elapsed iterations: ", self.nit)
 
-    def optimize(self, fun, x0, args):
+    def run_optimization(self, fun, x0, args):
         self.start_time = time()
         
         res = minimize(fun=fun,
@@ -46,11 +42,5 @@ class Optimizer:
                        method='Powell',
                        #options={'maxiter': 3, 'disp': True}
                        )
-        #print(f"res: {res}")
+        
         return res.x, self.flag
-
-# set maxtime_sec variable to desired stopping time
-#maxtime_sec = 10
-#op = optimizer(maxtime_sec)
-#res = op.optimize()
-#print(res)

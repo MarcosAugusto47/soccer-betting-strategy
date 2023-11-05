@@ -20,25 +20,11 @@ from joblib import Parallel, delayed
 from typing import Tuple
 from time import time
 
-start_time = time()
-
-#logging.basicConfig(level=logging.INFO, filename="my_log.log", filemode="w")
-#logger = logging.getLogger(__name__)
-
-#logger.info("RUN")
-
 metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata-with-date.parquet")
 odds = load_odds("data/odds.parquet")
 odds = join_metadata(odds, metadata)
 
-#track_record_list = []
-
-count = 0
-
 odds = odds[odds.Datetime.apply(str)<"2020-12-31"]
-#odds = odds[odds.Datetime.apply(str)<"2019-05-18"]
-#odds = odds[odds.Datetime.apply(str)=="2019-05-11"]
-
 
 def filter_better_odds(df: pd.DataFrame, n: int) -> pd.DataFrame:
     """
@@ -73,10 +59,7 @@ def process_group(group: Tuple[str, pd.DataFrame]):
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
 
             odds_sample = filter_better_odds(odds_sample, 5)
-            
-            #if len(odds_sample) > 50: # > 50
-            #    break
-            
+                       
             #logger.info(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
 
             odds_dict[game_id] = odds_sample
@@ -84,7 +67,6 @@ def process_group(group: Tuple[str, pd.DataFrame]):
 
         odds_dt = pd.concat(odds_dict.values())
 
-        #if len(odds_dt) <= 80 and len(odds_dt) >20: # > 50
         if len(odds_dt) <= 80: # > 50
             
             odds_favorable = np.array(odds_dt['Odd'])
@@ -93,16 +75,12 @@ def process_group(group: Tuple[str, pd.DataFrame]):
             games_ids = np.array(odds_dt['GameId'])
                 
             #try:
-            x0 = np.zeros(len(odds_favorable))
-            args = (odds_favorable, real_prob_favorable, event_favorable, games_ids, df_probs_dict)
-
-            #logger.info("Execution of minimization task...")    
             print("Execution of minimization task...")    
-            solution, time_limit_flag = Optimizer().optimize(fun=compute_objective_via_analytical,
-                                                                x0=x0,
-                                                                args=args)
-                
-            #logger.info("Finalization of minimization task...")
+            solution, time_limit_flag = Optimizer().run_optimization(
+                fun=compute_objective_via_analytical,
+                x0=np.zeros(len(odds_favorable)),
+                args=(odds_favorable, real_prob_favorable, event_favorable, games_ids, df_probs_dict)
+            )               
             print("Finalization of minimization task...")
 
             #except ValueError:
@@ -122,22 +100,25 @@ def process_group(group: Tuple[str, pd.DataFrame]):
                 scenario = gameid_to_outcome[game_id]
 
                 financial_return = get_bet_return(df=game_data,
-                                                    allocation_array=game_data.solution,
-                                                    scenario=scenario)
+                                                  allocation_array=game_data.solution,
+                                                  scenario=scenario)
 
-                #track_record = {}
-                #track_record['game_id'] = str(game_id)
-                #track_record['return'] = financial_return
-                #track_record['n_bets'] = len(game_data)
-                #track_record['datetime'] = group_name
-                #track_record['time_limit_flag'] = time_limit_flag
-                track_record_list.append([str(game_id), financial_return, len(game_data), group_name, time_limit_flag])
+                track_record_list.append([str(game_id),
+                                          financial_return,
+                                          len(game_data),
+                                          group_name,
+                                          time_limit_flag])
 
             return track_record_list
 
 
 if __name__ == "__main__":
-    num_jobs = -1  # Use all available CPU cores for parallel execution
+
+    start_time = time()
+    
+    # Use all available CPU cores for parallel execution
+    num_jobs = -1  
+
     grouped = odds.groupby('Datetime')
 
     # Parallelize the group processing
@@ -150,4 +131,4 @@ if __name__ == "__main__":
     pd.DataFrame(flat_list).to_csv("experiments/parallel_test.csv", index=False)
 
     elapsed_time = time() - start_time
-    print("Elapsed: %.3f sec" % elapsed_time)    
+    print("Final Elapsed: %.3f sec" % elapsed_time)    
