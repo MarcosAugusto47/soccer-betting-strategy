@@ -40,7 +40,6 @@ class Optimizer:
                        callback=self.callback,
                        tol=0.01,
                        method='Powell',
-                       #options={'maxiter': 3, 'disp': True}
-                       )
+        )
         
         return res.x, self.flag
