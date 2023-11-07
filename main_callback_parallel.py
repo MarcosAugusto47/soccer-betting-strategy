@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import math
-import logging
 
 from analytical_return import (
     softmax,
@@ -15,39 +14,20 @@ from data import (
 )
 from GameProbs import GameProbs
 from Optimizer import Optimizer
-from utils import get_bet_return
-from config import games_ids as GAMES_IDS
 from joblib import Parallel, delayed
-from typing import Tuple
+from typing import Tuple, List, Any
 from time import time
+from filter import filter_by_linear_combination
+from dependencies.utils import get_bet_return
+from dependencies.config import load_config
 
-metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata-with-date.parquet")
-odds = load_odds("data/odds.parquet")
+config = load_config("config/config.yml")
+metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
+odds = load_odds(config.odds_path)
 odds = join_metadata(odds, metadata)
 
-#odds = odds[(odds.Datetime.apply(str)>"2021-01-01")&(odds.Datetime.apply(str)<"2021-02-01")]
-#odds = odds[(odds.Datetime.apply(str)>"2020-01-01")&(odds.Datetime.apply(str)<"2021-01-01")]
-#odds = odds[(odds.Datetime.apply(str)>"2022-01-01")&(odds.Datetime.apply(str)<"2022-06-01")]
-#odds = odds[(odds.Datetime.apply(str)<"2020-01-01")]
-#odds = odds[(odds.Datetime.apply(str)>"2021-06-01")]
-#odds = odds[(odds.Datetime.apply(str)>"2021-01-01")&(odds.Datetime.apply(str)<"2021-06-01")]
 
-
-def filter_better_odds(df: pd.DataFrame, n: int) -> pd.DataFrame:
-    """
-    Filter the n better rows by a rule. We use n highest absolute distances
-    between sporstbook odd and real odd. This procedure will reduce the
-    allocation array length.
-    """
-    df['odd_dist'] = np.round((df['Odd'] - 1/df['real_prob']) / df['Odd'], 1)
-    #df['real_prob'] = np.round(df['real_prob'], 2)
-    w = 0.5
-    df['score'] = w*df['odd_dist'] + (1-w)*(df['real_prob'])
-    df = df.drop_duplicates(subset=['Market', 'Scenario', 'Bet'])
-    return df.sort_values(['score'], ascending=False).head(n)
-
-
-def process_group(group: Tuple[str, pd.DataFrame]):
+def process_group(group: Tuple[str, pd.DataFrame]) -> List[List[Any]]:
     
     is_valid_solution = True
 
@@ -58,7 +38,7 @@ def process_group(group: Tuple[str, pd.DataFrame]):
     # Initialize dict to store dataframes of favorable bet opportunities
     odds_dict = {}
 
-    # Initialze dict to store 7x7 matrices/dataframes of real probabilities 
+    # Initialize dict to store 7x7 matrices/dataframes of real probabilities 
     df_probs_dict = {}
 
     if len(games_ids) > 1:
@@ -71,9 +51,8 @@ def process_group(group: Tuple[str, pd.DataFrame]):
 
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
 
-            odds_sample = filter_better_odds(odds_sample, 5)
+            odds_sample = filter_by_linear_combination(odds_sample)
                        
-            #logger.info(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
             print(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
 
             odds_dict[game_id] = odds_sample
@@ -82,8 +61,10 @@ def process_group(group: Tuple[str, pd.DataFrame]):
         odds_dt = pd.concat(odds_dict.values())
         print(f"odds_dt.shape: {odds_dt.shape}")
 
-        if len(odds_dt) <= 80: # > 50
-            
+        if len(odds_dt) <= config.max_vector_length:
+
+            print(f"Date: {group_name}")
+
             odds_favorable = np.array(odds_dt['Odd'])
             real_prob_favorable = np.array(odds_dt['real_prob'])
             event_favorable = list(odds_dt['BetMap'].values)
@@ -99,7 +80,6 @@ def process_group(group: Tuple[str, pd.DataFrame]):
             print("Finalization of minimization task...")
 
             #except ValueError:
-                #logger.info("ValueError for minimization task...")
                 #continue
             
             if any(math.isnan(x) for x in solution):
@@ -108,8 +88,6 @@ def process_group(group: Tuple[str, pd.DataFrame]):
             odds_dt['solution'] = softmax(solution)
 
             track_record_list = []
-
-            print(f"Date: {group_name}")
 
             for game_id, game_data in odds_dt.groupby('GameId', sort=False):
                 
@@ -133,23 +111,24 @@ def process_group(group: Tuple[str, pd.DataFrame]):
             return track_record_list
 
 
-if __name__ == "__main__":
-
+def run_strategy():
+    
     start_time = time()
+    
+    grouped = odds.groupby('Datetime')
     
     # Use all available CPU cores for parallel execution
     num_jobs = -1  
-
-    grouped = odds.groupby('Datetime')
-
     # Parallelize the group processing
     results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group) for group in grouped)
 
     data = [x for x in results if x is not None]
-
     flat_list = [item for sublist in data for item in sublist]
-
-    pd.DataFrame(flat_list).to_csv("experiments/parallel_all_series_new_filter_test.csv", index=False)
+    pd.DataFrame(flat_list).to_csv(config.strategy_result_path, index=False)
 
     elapsed_time = time() - start_time
-    print("Final Elapsed: %.3f sec" % elapsed_time)    
+    print("Final Elapsed: %.3f sec" % elapsed_time)
+
+
+if __name__ == "__main__":
+    run_strategy()

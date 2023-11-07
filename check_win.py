@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import logging
 
@@ -10,7 +9,7 @@ from data import (
 )
 from GameProbs import GameProbs
 from Optimizer import Optimizer
-from utils import (
+from dependencies.utils import (
     get_index_to_scenario_for_betmap,
     find_positions,
     get_values_by_keys,
@@ -21,31 +20,11 @@ from config import games_ids as GAMES_IDS
 from joblib import Parallel, delayed
 from typing import Tuple
 from time import time
+from filter import filter_by_linear_combination
 
 metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata-with-date.parquet")
 odds = load_odds("data/odds.parquet")
 odds = join_metadata(odds, metadata)
-
-#odds = odds[(odds.Datetime.apply(str)<"2022-01-01")]
-#odds = odds[(odds.Datetime.apply(str)>"2021-01-01")&(odds.Datetime.apply(str)<"2021-02-01")]
-#odds = odds[(odds.Datetime.apply(str)>"2021-02-01")&(odds.Datetime.apply(str)<"2021-05-29")]
-#odds = odds[(odds.Datetime.apply(str)>"2020-11-01")&(odds.Datetime.apply(str)<"2021-01-01")]
-odds = odds[(odds.Datetime.apply(str)>"2019-05-01")&(odds.Datetime.apply(str)<"2019-06-01")]
-
-
-def filter_better_odds(df: pd.DataFrame, n: int) -> pd.DataFrame:
-    """
-    Filter the n better rows by a rule. We use n highest absolute distances
-    between sporstbook odd and real odd. This procedure will reduce the
-    allocation array length.
-    """
-    df['odd_dist'] = np.round((df['Odd'] - 1/df['real_prob']) / df['Odd'], 1)
-    #df['real_prob'] = np.round(df['real_prob'], 2)
-    #df['score'] = df['odd_dist'] * df['real_prob']
-    w = 0.5
-    df['score'] = w*df['odd_dist'] + (1-w)*(df['real_prob'])
-    df = df.drop_duplicates(subset=['Market', 'Scenario', 'Bet'])
-    return df.sort_values(['score'], ascending=False).head(n)
 
 
 def process_group(group: Tuple[str, pd.DataFrame]):
@@ -70,7 +49,7 @@ def process_group(group: Tuple[str, pd.DataFrame]):
 
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
 
-            odds_sample = filter_better_odds(odds_sample, 5)
+            odds_sample = filter_by_linear_combination(odds_sample)
                        
             #logger.info(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
             #print(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
