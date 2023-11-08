@@ -26,6 +26,7 @@ metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
 odds = load_odds(config.odds_path)
 odds = join_metadata(odds, metadata)
 
+odds = odds[odds.Datetime.apply(str)<="2019-04-28"]
 
 def process_group(group: Tuple[str, pd.DataFrame]) -> List[List[Any]]:
     
@@ -37,23 +38,17 @@ def process_group(group: Tuple[str, pd.DataFrame]) -> List[List[Any]]:
     
     # Initialize dict to store dataframes of favorable bet opportunities
     odds_dict = {}
-
     # Initialize dict to store 7x7 matrices/dataframes of real probabilities 
     df_probs_dict = {}
 
     if len(games_ids) > 1:
 
         for game_id in games_ids:
-
-            odds_sample = group_data[(group_data.GameId==game_id)]
-
             df = GameProbs(game_id).build_dataframe()
-
+            
+            odds_sample = group_data[(group_data.GameId==game_id)]
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
-
             odds_sample = filter_by_linear_combination(odds_sample)
-                       
-            print(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
 
             odds_dict[game_id] = odds_sample
             df_probs_dict[game_id] = df
@@ -87,28 +82,24 @@ def process_group(group: Tuple[str, pd.DataFrame]) -> List[List[Any]]:
 
             odds_dt['solution'] = softmax(solution)
 
-            track_record_list = []
+            track_record = []
 
             for game_id, game_data in odds_dt.groupby('GameId', sort=False):
-                
-                print(f"game_id: {game_id}")
-
                 scenario = gameid_to_outcome[game_id]
-
                 financial_return = get_bet_return(df=game_data,
                                                   allocation_array=game_data.solution,
                                                   scenario=scenario)
 
-                print(f"financial_return: {financial_return}")
+                print(f"game_id: {game_id}; financial_return: {financial_return}")
 
-                track_record_list.append([str(game_id),
-                                          financial_return,
-                                          len(game_data),
-                                          group_name,
-                                          time_limit_flag,
-                                          is_valid_solution])
+                track_record.append([str(game_id),
+                                     financial_return,
+                                     len(game_data),
+                                     group_name,
+                                     time_limit_flag,
+                                     is_valid_solution])
 
-            return track_record_list
+            return track_record
 
 
 def run_strategy():

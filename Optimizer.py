@@ -29,7 +29,7 @@ class Optimizer:
             
         else:
             print("Elapsed: %.3f sec" % elapsed_time)
-            print("Elapsed iterations: ", self.nit)
+            #print("Elapsed iterations: ", self.nit)
 
     def run_optimization(self, fun, x0, args):
         self.start_time = time()
