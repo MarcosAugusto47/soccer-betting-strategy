@@ -4,7 +4,7 @@ from itertools import chain
 import math
 
 from scipy.optimize import minimize
-from utils import get_bet_return
+from dependencies.utils import get_bet_return
 
 def get_index_to_scenario():
     """Get a dictionary with a index as key and a scenario as value."""
