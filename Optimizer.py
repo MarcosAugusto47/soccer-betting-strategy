@@ -27,8 +27,8 @@ class Optimizer:
             warnings.warn("Terminating optimization: time limit reached",
                           TookTooLong)
             
-        else:
-            print("Elapsed: %.3f sec" % elapsed_time)
+        #else:
+            #print("Elapsed: %.3f sec" % elapsed_time)
             #print("Elapsed iterations: ", self.nit)
 
     def run_optimization(self, fun, x0, args):
