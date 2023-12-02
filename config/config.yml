@@ -1,7 +1,7 @@
 # data paths
 metadata_path: "data/metadata-with-date.parquet"
 odds_path: "data/odds.parquet"
-strategy_result_path: "experiments/all_series_final_solution_2.csv"
+#strategy_result_path: "experiments/all_series_final_solution_2.csv"
 
 # bet vector constants
-max_vector_length: 80
+max_vector_length: 40
