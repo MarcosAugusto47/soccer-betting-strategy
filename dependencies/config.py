@@ -6,7 +6,7 @@ import yaml
 class Config:
     metadata_path: str
     odds_path: str
-    strategy_result_path: str
+    #strategy_result_path: str
     
     max_vector_length: int
 
