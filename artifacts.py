@@ -12,7 +12,7 @@ def save_csv_artifact(folder, path, data):
 def process_results(aggregator, do_baseline, track_record):
 
     if not do_baseline:
-        count_col = track_record.groupby(aggregator, sort=False).count().reset_index()['game_id']
+        count_col = track_record.groupby(aggregator, sort=False).count().reset_index()['GameId']
         is_valid_solution = track_record.groupby(aggregator, sort=False).any().reset_index()['is_valid_solution']
         track_record = track_record.groupby(aggregator, sort=False)[['return', 'n_bets']].sum().reset_index()
         track_record['count'] = count_col

@@ -91,7 +91,6 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
             
             if any(math.isnan(x) for x in solution):
                 is_valid_solution = False
-            print(f"softmax solution: {softmax(solution)})")
             odds_dt['solution'] = softmax(solution)
 
             track_record = []
