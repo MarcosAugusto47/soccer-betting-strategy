@@ -4,7 +4,7 @@ from data import load_map
 
 class GameProbs:
     def __init__(self, match_id):
-        json_dict = load_map("data\meanSurface.json")
+        json_dict = load_map("data/meanSurface.json")
         self.parsed_data = json_dict[match_id]
    
     def build_dataframe(self, nrow=7, ncol=7):
