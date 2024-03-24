@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import logging
 
@@ -58,3 +59,8 @@ def get_bet_return(df: pd.DataFrame, allocation_array: list, scenario: str) -> f
     
     # Calculate the financial return
     return sum(df['Odd'] * df['flag'] * allocation_array)
+
+
+def softmax(x):
+    """Compute softmax values for each sets of scores in x."""
+    return np.exp(x) / np.sum(np.exp(x), axis=0)

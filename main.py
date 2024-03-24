@@ -4,7 +4,6 @@ import logging
 
 from analytical_return import (
     minimize_analytical,
-    softmax,
 )
 from data import (
     load_metadata_artefacts,
@@ -16,6 +15,7 @@ from data import (
 from GameProbs import GameProbs
 from utils import get_bet_return
 from config import games_ids as GAMES_IDS
+from dependencies.utils import softmax
 
 logging.basicConfig(level=logging.INFO, filename="my_log.log", filemode="w")
 logger = logging.getLogger(__name__)

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import logging
 
+from dependencies.utils import softmax
 from scipy.optimize import minimize
 from itertools import chain
 from typing import Dict
@@ -92,11 +93,6 @@ def second_moment(allocation: list,
 
 def variance(second_moment, expectation):
     return second_moment - (expectation)**2
-
-
-def softmax(x):
-    """Compute softmax values for each sets of scores in x."""
-    return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 
 def compute_objective_via_analytical(
