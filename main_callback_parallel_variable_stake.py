@@ -1,0 +1,184 @@
+import argparse
+import datetime
+import math
+import os
+from time import time
+from typing import Any, List, Tuple
+
+import numpy as np
+import pandas as pd
+from joblib import Parallel, delayed
+
+from analytical_variable_stake_return import (
+    compute_objective_via_analytical,
+)
+from artifacts import (
+    build_plot_df_wrapper,
+    save_csv_artifact,
+    save_plot_strategy,
+)
+from data import (
+    apply_final_treatment,
+    join_metadata,
+    load_metadata_artefacts,
+    load_odds,
+)
+from dependencies.config import load_config
+from dependencies.utils import get_bet_return, softmax
+from filter import filter_by_linear_combination
+from GameProbs import GameProbs
+from Optimizer import Optimizer
+
+config = load_config("config/config.yml")
+metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
+odds = load_odds(config.odds_path)
+odds = join_metadata(odds, metadata)
+
+odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
+
+#odds = odds[(odds.Datetime.apply(str)>"2021-01-01")&(odds.Datetime.apply(str)<="2021-02-01")]
+odds = odds[(odds.Datetime.apply(str)<="2019-06-01")]
+
+def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
+    
+    is_valid_solution = True
+
+    _, group_data = group
+   
+    games_ids = group_data['GameId'].unique()
+    
+    # Initialize dict to store dataframes of favorable bet opportunities
+    odds_dict = {}
+    # Initialize dict to store 7x7 matrices/dataframes of real probabilities 
+    df_probs_dict = {}
+
+    if len(games_ids) > args.min_games:
+
+        for game_id in games_ids:
+            df = GameProbs(game_id).build_dataframe()
+            
+            odds_sample = group_data[(group_data.GameId==game_id)]
+            odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
+            if not args.do_baseline:   
+                odds_sample = filter_by_linear_combination(odds_sample)
+            else:
+                odds_sample = odds_sample.sample(1)
+            odds_dict[game_id] = odds_sample
+            df_probs_dict[game_id] = df
+
+        odds_dt = pd.concat(odds_dict.values())
+
+        if len(odds_dt) <= config.max_vector_length:
+            iteration_date = odds_dt.Datetime.apply(str).unique()[0]
+            print(f"Date: {iteration_date}")
+
+            odds_favorable = np.array(odds_dt['Odd'])
+            real_prob_favorable = np.array(odds_dt['real_prob'])
+            event_favorable = list(odds_dt['BetMap'].values)
+            games_ids = np.array(odds_dt['GameId'])
+
+            #try:
+            print("Execution of minimization task...")
+            n_optim = len(odds_dt) + 1  
+            #bounds = [(0, 1)] + [(None, None) for _ in range(1, n_optim)]
+            bounds = [(0, 1)]*n_optim
+            solution, time_limit_flag = Optimizer().run_optimization(
+                fun=compute_objective_via_analytical,
+                #x0=np.zeros(1 + len(odds_favorable)),
+                x0=[.1] + [0]*(n_optim-1),
+                args=(odds_favorable, real_prob_favorable, event_favorable, games_ids, df_probs_dict),
+                bounds=bounds,
+            )               
+            print("Finalization of minimization task...")
+
+            #except ValueError:
+                #continue
+            
+            if any(math.isnan(x) for x in solution):
+                is_valid_solution = False
+
+            gamma = solution[0]
+            solution = solution[1:]
+
+            print(f"gamma: {np.round(gamma, 4)}")
+            print(f"solution: {np.round(solution, 3)}")
+
+            odds_dt['solution'] = softmax(solution)
+
+            track_record = []
+
+            for game_id, game_data in odds_dt.groupby('GameId', sort=False):
+                scenario = gameid_to_outcome[game_id]
+                financial_return = get_bet_return(df=game_data,
+                                                  allocation_array=game_data.solution,
+                                                  scenario=scenario)
+
+                print(f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}")
+
+                track_record.append([str(game_id),
+                                     financial_return,
+                                     len(game_data),
+                                     time_limit_flag,
+                                     is_valid_solution,
+                                     iteration_date])
+
+            return track_record
+
+
+def run_strategy(args):
+    
+    start_time = time()
+
+    grouped = odds.groupby(args.aggregator)
+    
+    # Use all available CPU cores for parallel execution
+    num_jobs = 1
+    # Parallelize the group processing
+    results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, args) for group in grouped)
+
+    data = [x for x in results if x is not None]
+    df_flat = pd.DataFrame([item for sublist in data for item in sublist])
+
+    if args.save_experiment:
+
+        # Create artefacts folder
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        artefacts_folder = f"artefacts/aggregator{args.aggregator}_min_games{args.min_games}_do_baseline{args.do_baseline}_{timestamp}"
+        os.makedirs(artefacts_folder)
+        args.artefacts_folder = artefacts_folder
+
+        save_csv_artifact(artefacts_folder, "result", df_flat)
+        df_plot = build_plot_df_wrapper(args)
+        save_csv_artifact(artefacts_folder, "result_plot", df_plot)
+        save_plot_strategy(args, df_plot)
+    
+    elapsed_time = time() - start_time
+    print("Final Elapsed: %.3f sec" % elapsed_time)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--aggregator",
+        type=str,
+        help="aggregate by GameId or by Datetime"
+    )
+    parser.add_argument(
+        "--min_games",
+        type=int,
+        default=0,
+        help="threshold of minimum number of games to enter the optimization task"
+    )
+    parser.add_argument(
+        "--do_baseline",
+        action='store_true',
+        help="flag to apply baseline logic or not, not specifying the argument return the opposite of the action"
+    )
+    parser.add_argument(
+        "--save_experiment",
+        action='store_true',
+        help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action"
+    )
+    args = parser.parse_args()
+    print(args)
+    run_strategy(args)

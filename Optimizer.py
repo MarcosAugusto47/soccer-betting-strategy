@@ -31,12 +31,13 @@ class Optimizer:
             #print("Elapsed: %.3f sec" % elapsed_time)
             #print("Elapsed iterations: ", self.nit)
 
-    def run_optimization(self, fun, x0, args):
+    def run_optimization(self, fun, x0, args, bounds=None):
         self.start_time = time()
         
         res = minimize(fun=fun,
                        x0=x0,
                        args=args,
+                       bounds=bounds,
                        callback=self.callback,
                        tol=0.01,
                        method='Powell',
