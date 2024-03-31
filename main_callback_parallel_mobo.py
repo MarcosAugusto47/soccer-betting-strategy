@@ -1,31 +1,31 @@
-import os
 import argparse
+import datetime
+import math
+import os
+from time import time
+from typing import Any, List, Tuple
+
 import numpy as np
 import pandas as pd
-import math
-import datetime
-
 import torch
-from MOBO import MOBO
+from joblib import Parallel, delayed
 
-from data import (
-    load_metadata_artefacts,
-    load_odds,
-    join_metadata,
-    apply_final_treatment,
-)
 from artifacts import (
+    build_plot_df_wrapper,
     save_csv_artifact,
     save_plot_strategy,
-    build_plot_df_wrapper,
 )
-from GameProbs import GameProbs
-from joblib import Parallel, delayed
-from typing import Tuple, List, Any
-from time import time
-from filter import filter_by_linear_combination
-from dependencies.utils import get_bet_return, softmax
+from data import (
+    apply_final_treatment,
+    join_metadata,
+    load_metadata_artefacts,
+    load_odds,
+)
 from dependencies.config import load_config
+from dependencies.utils import get_bet_return, softmax
+from filter import filter_by_linear_combination
+from GameProbs import GameProbs
+from MOBO import MOBO
 
 config = load_config("config/config.yml")
 metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
@@ -34,7 +34,7 @@ odds = join_metadata(odds, metadata)
 
 odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
 
-odds = odds[(odds.Datetime.apply(str)>"2021-01-01")]
+#odds = odds[(odds.Datetime.apply(str)>"2021-01-01")]
 #odds = odds[(odds.Datetime.apply(str)>"2020-01-01") & (odds.Datetime.apply(str)<"2021-01-01")]
 
 def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
@@ -126,23 +126,25 @@ def run_strategy(args):
     grouped = odds.groupby(args.aggregator)
     
     # Use all available CPU cores for parallel execution
-    num_jobs = 1
+    num_jobs = 3
     # Parallelize the group processing
     results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, args) for group in grouped)
 
     data = [x for x in results if x is not None]
     df_flat = pd.DataFrame([item for sublist in data for item in sublist])
 
-    # Create artefacts folder
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    artefacts_folder = f"artefacts/botorch_aggregator{args.aggregator}_min_games{args.min_games}_do_baseline{args.do_baseline}_{timestamp}"
-    os.makedirs(artefacts_folder)
-    args.artefacts_folder = artefacts_folder
+    if args.save_experiment:
 
-    save_csv_artifact(artefacts_folder, "result", df_flat)
-    df_plot = build_plot_df_wrapper(args)
-    save_csv_artifact(artefacts_folder, "result_plot", df_plot)
-    save_plot_strategy(args, df_plot)
+        # Create artefacts folder
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        artefacts_folder = f"artefacts/mobo_aggregator{args.aggregator}_min_games{args.min_games}_do_baseline{args.do_baseline}_{timestamp}"
+        os.makedirs(artefacts_folder)
+        args.artefacts_folder = artefacts_folder
+
+        save_csv_artifact(artefacts_folder, "result", df_flat)
+        df_plot = build_plot_df_wrapper(args)
+        save_csv_artifact(artefacts_folder, "result_plot", df_plot)
+        save_plot_strategy(args, df_plot)
     
     elapsed_time = time() - start_time
     print("Final Elapsed: %.3f sec" % elapsed_time)
@@ -165,6 +167,11 @@ if __name__ == "__main__":
         "--do_baseline",
         action='store_true',
         help="flag to apply baseline logic or not, not specifying the argument return the opposite of the action"
+    )
+    parser.add_argument(
+        "--save_experiment",
+        action='store_true',
+        help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action"
     )
     args = parser.parse_args()
     print(args)
