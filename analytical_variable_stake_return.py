@@ -105,7 +105,7 @@ def compute_objective_via_analytical(
 
     gamma = x[0]
     x = x[1:]
-    x = softmax(x)
+    #x = softmax(x)
 
     my_expectation = expectation(allocation=x,
                                  public_odd=public_odd,
@@ -130,24 +130,3 @@ def compute_objective_via_analytical(
     output = (1 - gamma + gamma*my_expectation) / (gamma*my_sigma)
 
     return -output
-
-
-def minimize_analytical(public_odd, real_probabilities, event, games_ids, df_probs_dict):
-    
-    # Set initial guess
-    x0 = np.zeros(len(public_odd))
-   
-    args = (public_odd, real_probabilities, event, games_ids, df_probs_dict)
-    
-    res = minimize(fun=compute_objective_via_analytical,
-                   x0=x0,
-                   args=args,
-                   tol=0.1,
-                   #method='Powell',
-                   #options={'maxiter': 3, 'disp': True, 'return_all': True}
-                   )
-    
-    if res.success:
-        return res.x
-    else: 
-        raise ValueError(res.message)
