@@ -1,3 +1,4 @@
+import numpy as np
 import warnings
 
 from time import time
@@ -34,6 +35,14 @@ class Optimizer:
     def run_optimization(self, fun, x0, args, bounds=None):
         self.start_time = time()
         
+        # Constraint function
+        def constraint_equation(x):
+            # This function returns 0 when the sum of x equals 1
+            return np.sum(x[1:]) - 1
+
+        # Constraint dictionary
+        constraint = {'type': 'eq', 'fun': constraint_equation}
+
         res = minimize(fun=fun,
                        x0=x0,
                        args=args,
@@ -41,6 +50,8 @@ class Optimizer:
                        callback=self.callback,
                        tol=0.01,
                        method='Powell',
+                       #constraints=constraint,
+                       #options={"disp": True},
         )
         
         return res.x, self.flag
