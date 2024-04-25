@@ -175,7 +175,7 @@ def apply_final_treatment(
 
     # Flag if public odd > predicted odd
     df_odds['bet_flag'] =  df_odds['public_prob'] < df_odds['real_prob']
-
     df_odds = df_odds[df_odds.bet_flag]
+    df_odds['n_favorable_bets'] = len(df_odds)
 
     return df_odds
