@@ -1,43 +1,51 @@
-import os
 import argparse
+import datetime
+import math
+import os
+from time import time
+from typing import Any, List, Tuple
+
 import numpy as np
 import pandas as pd
-import math
-import datetime
+from joblib import Parallel, delayed
 
 from analytical_return import (
     compute_objective_via_analytical,
 )
-from data import (
-    load_metadata_artefacts,
-    load_odds,
-    join_metadata,
-    apply_final_treatment,
-)
 from artifacts import (
+    build_plot_df_wrapper,
     save_csv_artifact,
     save_plot_strategy,
-    build_plot_df_wrapper,
 )
+from data import (
+    apply_final_treatment,
+    join_metadata,
+    load_metadata_artefacts,
+    load_odds,
+)
+from dependencies.config import load_config
+from dependencies.utils import get_bet_return, softmax
+from filter import filter_by_linear_combination
 from GameProbs import GameProbs
 from Optimizer import Optimizer
-from joblib import Parallel, delayed
-from typing import Tuple, List, Any
-from time import time
-from filter import filter_by_linear_combination
-from dependencies.utils import get_bet_return, softmax
-from dependencies.config import load_config
 
 config = load_config("config/config.yml")
-metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
-odds = load_odds(config.odds_path)
-odds = join_metadata(odds, metadata)
 
-odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
 
-odds = odds[odds.Datetime.apply(str)<"2020-01-01"]
+def setup(args):
+    metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
+    odds = load_odds(config.odds_path, args.bookmakers)
+    print(odds.shape)
+    odds = join_metadata(odds, metadata)
 
-def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
+    odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
+
+    #odds = odds[(odds.Datetime.apply(str)>"2021-05-26")]
+    #odds = odds[(odds.Datetime.apply(str)>"2019-05-01") & (odds.Datetime.apply(str)<"2019-05-05")]
+    return odds, gameid_to_outcome
+
+
+def process_group(group: Tuple[str, pd.DataFrame], gameid_to_outcome, args) -> List[List[Any]]:
     
     is_valid_solution = True
 
@@ -65,7 +73,6 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
             df_probs_dict[game_id] = df
 
         odds_dt = pd.concat(odds_dict.values())
-        print(f"odds_dt.shape: {odds_dt.shape}")
 
         if len(odds_dt) <= config.max_vector_length:
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
@@ -75,7 +82,7 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
             real_prob_favorable = np.array(odds_dt['real_prob'])
             event_favorable = list(odds_dt['BetMap'].values)
             games_ids = np.array(odds_dt['GameId'])
-                
+
             #try:
             print("Execution of minimization task...")    
             solution, time_limit_flag = Optimizer().run_optimization(
@@ -100,7 +107,7 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
                                                   allocation_array=game_data.solution,
                                                   scenario=scenario)
 
-                print(f"game_id: {game_id}; financial_return: {financial_return}")
+                print(f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}")
 
                 track_record.append([str(game_id),
                                      financial_return,
@@ -116,26 +123,30 @@ def run_strategy(args):
     
     start_time = time()
 
+    odds, gameid_to_outcome = setup(args)
+
     grouped = odds.groupby(args.aggregator)
     
     # Use all available CPU cores for parallel execution
-    num_jobs = 2 
+    num_jobs = 4
     # Parallelize the group processing
-    results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, args) for group in grouped)
+    results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, gameid_to_outcome, args) for group in grouped)
 
     data = [x for x in results if x is not None]
     df_flat = pd.DataFrame([item for sublist in data for item in sublist])
 
-    # Create artefacts folder
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    artefacts_folder = f"artefacts/aggregator{args.aggregator}_min_games{args.min_games}_do_baseline{args.do_baseline}_{timestamp}"
-    os.makedirs(artefacts_folder)
-    args.artefacts_folder = artefacts_folder
+    if args.save_experiment:
 
-    save_csv_artifact(artefacts_folder, "result", df_flat)
-    df_plot = build_plot_df_wrapper(args)
-    save_csv_artifact(artefacts_folder, "result_plot", df_plot)
-    save_plot_strategy(args, df_plot)
+        # Create artefacts folder
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        artefacts_folder = f"artefacts/aggregator{args.aggregator}_min_games{args.min_games}_bookmakers{args.bookmakers}_do_baseline{args.do_baseline}_{timestamp}"
+        os.makedirs(artefacts_folder)
+        args.artefacts_folder = artefacts_folder
+
+        save_csv_artifact(artefacts_folder, "result", df_flat)
+        df_plot = build_plot_df_wrapper(args)
+        save_csv_artifact(artefacts_folder, "result_plot", df_plot)
+        save_plot_strategy(args, df_plot)
     
     elapsed_time = time() - start_time
     print("Final Elapsed: %.3f sec" % elapsed_time)
@@ -155,9 +166,20 @@ if __name__ == "__main__":
         help="threshold of minimum number of games to enter the optimization task"
     )
     parser.add_argument(
+        "--bookmakers",
+        type=int,
+        default=None,
+        help="threshold of minimum number of games to enter the optimization task"
+    )
+    parser.add_argument(
         "--do_baseline",
         action='store_true',
         help="flag to apply baseline logic or not, not specifying the argument return the opposite of the action"
+    )
+    parser.add_argument(
+        "--save_experiment",
+        action='store_true',
+        help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action"
     )
     args = parser.parse_args()
     print(args)

@@ -14,9 +14,11 @@ def process_results(aggregator, do_baseline, track_record):
     if not do_baseline:
         count_col = track_record.groupby(aggregator, sort=False).count().reset_index()['GameId']
         is_valid_solution = track_record.groupby(aggregator, sort=False).any().reset_index()['is_valid_solution']
+        n_favorable_bets = track_record.groupby("Datetime").first().reset_index()['n_favorable_bets']
         track_record = track_record.groupby(aggregator, sort=False)[['return', 'n_bets']].sum().reset_index()
         track_record['count'] = count_col
         track_record['is_valid_solution'] = is_valid_solution
+        track_record['n_favorable_bets'] = n_favorable_bets
         track_record = track_record[track_record.is_valid_solution]
     
     return track_record
@@ -47,7 +49,8 @@ def build_plot_df(stake, do_baseline, df):
         'return': [0] + list(df['return']),
         #'count': [0] + list(df['count']),
         #'n_bets': [0] + list(df.n_bets),
-        'stake': stake}
+        'stake': stake,
+        'n_favorable_bets': [0] + list(df.n_favorable_bets)}
     )
 
     return plot_df
@@ -68,7 +71,7 @@ def save_plot_strategy(args, df):
 
 def build_plot_df_wrapper(args):
     track_record = pd.read_csv(f"{args.artefacts_folder}/result.csv")
-    track_record.columns = ['GameId', 'return',	'n_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
+    track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
     df = process_results(args.aggregator, args.do_baseline, track_record)
     stake = compute_stake(df)
     return build_plot_df(stake, args.do_baseline, df)

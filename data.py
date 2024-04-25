@@ -24,12 +24,16 @@ def load_map(file_path):
         return json.load(json_file)
 
 
-def load_odds(file_path):
+def load_odds(file_path, n=None):
     df = pd.read_parquet(file_path)
     df = df[df.League=="Brasileirão Série A"].drop("League", axis=1)
     #df = df[df.Market!="spread"]
     df['Odd'] = df['Odd'].astype(float)
     df['public_prob'] = 1/df['Odd']
+
+    if n:
+        sportsbook_list = list(df.Sportsbook.value_counts().index)[0:n]
+        df = df[df.Sportsbook.isin(sportsbook_list)]
 
     return df
 
@@ -171,7 +175,7 @@ def apply_final_treatment(
 
     # Flag if public odd > predicted odd
     df_odds['bet_flag'] =  df_odds['public_prob'] < df_odds['real_prob']
-
     df_odds = df_odds[df_odds.bet_flag]
+    df_odds['n_favorable_bets'] = len(df_odds)
 
     return df_odds
