@@ -30,17 +30,22 @@ from GameProbs import GameProbs
 from Optimizer import Optimizer
 
 config = load_config("config/config.yml")
-metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
-odds = load_odds(config.odds_path)
-odds = join_metadata(odds, metadata)
-
-odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
-
-#odds = odds[(odds.Datetime.apply(str)>"2021-01-01")&(odds.Datetime.apply(str)<="2021-02-01")]
-#odds = odds[(odds.Datetime.apply(str)<="2019-06-01")]
 
 
-def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
+def setup(args):
+    metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
+    odds = load_odds(config.odds_path, args.bookmakers)
+    print(odds.shape)
+    odds = join_metadata(odds, metadata)
+
+    odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
+
+    #odds = odds[(odds.Datetime.apply(str)>"2021-05-26")]
+    #odds = odds[(odds.Datetime.apply(str)>"2019-05-01") & (odds.Datetime.apply(str)<"2019-05-05")]
+    return odds, gameid_to_outcome
+
+
+def process_group(group: Tuple[str, pd.DataFrame], gameid_to_outcome, args) -> List[List[Any]]:
     
     is_valid_solution = True
 
@@ -102,7 +107,7 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
                                                   allocation_array=game_data.solution,
                                                   scenario=scenario)
 
-                print(f"game_id: {game_id}; financial_return: {financial_return}")
+                print(f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}")
 
                 track_record.append([str(game_id),
                                      financial_return,
@@ -118,12 +123,14 @@ def run_strategy(args):
     
     start_time = time()
 
+    odds, gameid_to_outcome = setup(args)
+
     grouped = odds.groupby(args.aggregator)
     
     # Use all available CPU cores for parallel execution
-    num_jobs = 3
+    num_jobs = 4
     # Parallelize the group processing
-    results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, args) for group in grouped)
+    results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, gameid_to_outcome, args) for group in grouped)
 
     data = [x for x in results if x is not None]
     df_flat = pd.DataFrame([item for sublist in data for item in sublist])
@@ -132,7 +139,7 @@ def run_strategy(args):
 
         # Create artefacts folder
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        artefacts_folder = f"artefacts/aggregator{args.aggregator}_min_games{args.min_games}_do_baseline{args.do_baseline}_{timestamp}"
+        artefacts_folder = f"artefacts/aggregator{args.aggregator}_min_games{args.min_games}_bookmakers{args.bookmakers}_do_baseline{args.do_baseline}_{timestamp}"
         os.makedirs(artefacts_folder)
         args.artefacts_folder = artefacts_folder
 
@@ -156,6 +163,12 @@ if __name__ == "__main__":
         "--min_games",
         type=int,
         default=0,
+        help="threshold of minimum number of games to enter the optimization task"
+    )
+    parser.add_argument(
+        "--bookmakers",
+        type=int,
+        default=None,
         help="threshold of minimum number of games to enter the optimization task"
     )
     parser.add_argument(

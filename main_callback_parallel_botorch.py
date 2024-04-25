@@ -27,17 +27,24 @@ from dependencies.utils import get_bet_return, softmax
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
 
+
 config = load_config("config/config.yml")
-metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
-odds = load_odds(config.odds_path)
-odds = join_metadata(odds, metadata)
 
-odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
 
-#odds = odds[(odds.Datetime.apply(str)=="2019-08-18")]
-#odds = odds[(odds.Datetime.apply(str)>"2022-01-01") & (odds.Datetime.apply(str)<"2024-01-01")]
+def setup(args):
+    metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
+    odds = load_odds(config.odds_path, args.bookmakers)
+    print(odds.shape)
+    odds = join_metadata(odds, metadata)
 
-def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
+    odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
+
+    #odds = odds[(odds.Datetime.apply(str)>"2021-05-26")]
+    #odds = odds[(odds.Datetime.apply(str)>"2019-05-01") & (odds.Datetime.apply(str)<"2019-05-05")]
+    return odds, gameid_to_outcome
+
+
+def process_group(group: Tuple[str, pd.DataFrame], gameid_to_outcome, args) -> List[List[Any]]:
     
     is_valid_solution = True
 
@@ -66,7 +73,9 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
 
         odds_dt = pd.concat(odds_dict.values())
 
-        if len(odds_dt) <= config.max_vector_length:
+        #import pdb; pdb.set_trace()
+
+        if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
             print(f"Date: {iteration_date}")
 
@@ -112,6 +121,7 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
                 track_record.append([str(game_id),
                                      financial_return,
                                      len(game_data),
+                                     odds_dt.n_favorable_bets.values[0],
                                      time_limit_flag,
                                      is_valid_solution,
                                      iteration_date])
@@ -123,12 +133,14 @@ def run_strategy(args):
     
     start_time = time()
 
+    odds, gameid_to_outcome = setup(args)
+
     grouped = odds.groupby(args.aggregator)
     
     # Use all available CPU cores for parallel execution
     num_jobs = 3
     # Parallelize the group processing
-    results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, args) for group in grouped)
+    results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, gameid_to_outcome, args) for group in grouped)
 
     data = [x for x in results if x is not None]
     df_flat = pd.DataFrame([item for sublist in data for item in sublist])
@@ -137,7 +149,7 @@ def run_strategy(args):
 
         # Create artefacts folder
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        artefacts_folder = f"artefacts/botorch_aggregator{args.aggregator}_min_games{args.min_games}_do_baseline{args.do_baseline}_{timestamp}"
+        artefacts_folder = f"artefacts/botorch_aggregator{args.aggregator}_min_games{args.min_games}_bookmakers{args.bookmakers}_do_baseline{args.do_baseline}_{timestamp}"
         os.makedirs(artefacts_folder)
         args.artefacts_folder = artefacts_folder
 
@@ -161,6 +173,12 @@ if __name__ == "__main__":
         "--min_games",
         type=int,
         default=0,
+        help="threshold of minimum number of games to enter the optimization task"
+    )
+    parser.add_argument(
+        "--bookmakers",
+        type=int,
+        default=None,
         help="threshold of minimum number of games to enter the optimization task"
     )
     parser.add_argument(

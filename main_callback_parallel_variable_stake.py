@@ -37,7 +37,7 @@ odds = join_metadata(odds, metadata)
 odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
 
 #odds = odds[(odds.Datetime.apply(str)>"2021-01-01")&(odds.Datetime.apply(str)<="2021-02-01")]
-odds = odds[(odds.Datetime.apply(str)<="2019-06-01")]
+odds = odds[(odds.Datetime.apply(str)=="2019-06-01")]
 
 def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
     
@@ -81,11 +81,11 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
             print("Execution of minimization task...")
             n_optim = len(odds_dt) + 1  
             #bounds = [(0, 1)] + [(None, None) for _ in range(1, n_optim)]
-            bounds = [(0, 1)]*n_optim
+            bounds = [(0.3, .6)] + [(0, 1)]*(n_optim-1)
             solution, time_limit_flag = Optimizer().run_optimization(
                 fun=compute_objective_via_analytical,
                 #x0=np.zeros(1 + len(odds_favorable)),
-                x0=[.1] + [0]*(n_optim-1),
+                x0=[.3] + [0.01]*(n_optim-1),
                 args=(odds_favorable, real_prob_favorable, event_favorable, games_ids, df_probs_dict),
                 bounds=bounds,
             )               
@@ -101,9 +101,11 @@ def process_group(group: Tuple[str, pd.DataFrame], args) -> List[List[Any]]:
             solution = solution[1:]
 
             print(f"gamma: {np.round(gamma, 4)}")
+            print(f"sum of solution: {sum(solution)}")
             print(f"solution: {np.round(solution, 3)}")
 
-            odds_dt['solution'] = softmax(solution)
+            #odds_dt['solution'] = softmax(solution)
+            odds_dt['solution'] = solution
 
             track_record = []
 
