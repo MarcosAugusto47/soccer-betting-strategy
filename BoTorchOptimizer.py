@@ -18,7 +18,7 @@ from botorch.models.transforms.input import Normalize
 class BoTorchOptimizer:
     
     def __init__(self, public_odd, real_probabilities, event, games_ids, df_probs_dict):
-        self.n_iterations = 50
+        self.n_iterations = 100
         self.public_odd = public_odd
         self.real_probabilities = real_probabilities
         self.event = event
