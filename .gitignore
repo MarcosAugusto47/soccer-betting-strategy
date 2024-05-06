@@ -164,3 +164,4 @@ EDA/
 *.csv
 mlruns/
 experiments/qualification_result/
+figures/qualification/
