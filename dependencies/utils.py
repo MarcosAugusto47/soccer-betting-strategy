@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import logging
+import glob
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -64,3 +66,35 @@ def get_bet_return(df: pd.DataFrame, allocation_array: list, scenario: str) -> f
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
     return np.exp(x) / np.sum(np.exp(x), axis=0)
+
+
+def save_df_as_parquet(df, filename, directory='EDA'):
+    """
+    Saves a DataFrame to a specified Parquet file within a given directory.
+
+    Args:
+    df (pandas.DataFrame): The DataFrame to save.
+    filename (str): The base filename to use, without an extension.
+    directory (str): The directory in which to save the files.
+    """
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    
+    # Construct the full file path
+    file_path = os.path.join(directory, f"{filename}.parquet")
+    
+    # Save the DataFrame
+    df.to_parquet(file_path, index=False)
+
+
+def read_all_parquet(directory):
+    # List all Parquet files in the directory
+    files = glob.glob(f'{directory}/*.parquet')
+    
+    # Read each file into a DataFrame and append to a list
+    dfs = [pd.read_parquet(file) for file in files]
+    
+    # Concatenate all DataFrames into one
+    combined_df = pd.concat(dfs, ignore_index=True)
+    return combined_df
