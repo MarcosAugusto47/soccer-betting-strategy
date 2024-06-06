@@ -24,10 +24,10 @@ def process_results(aggregator, do_baseline, track_record):
     return track_record
 
 
-def compute_stake(df):
+def compute_stake(df, percentage=0.10):
     stake = [1]
     current_stake = 1
-    percentage = 0.10
+
     for i in df['return']:
 
         preserved_stake = current_stake * (1-percentage)
@@ -56,7 +56,7 @@ def build_plot_df(stake, do_baseline, df):
     return plot_df
 
 
-def save_plot_strategy(args, df):
+def save_plot_strategy(path, df):
     """ Create a line plot."""
     plt.figure(figsize=(20, 6))
     plt.plot(df.date, df.stake, linestyle='-')
@@ -66,12 +66,12 @@ def save_plot_strategy(args, df):
     plt.xticks(rotation=90)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(f"{args.artefacts_folder}/plot.PNG")
+    plt.savefig(f"{path}/plot.PNG")
 
 
-def build_plot_df_wrapper(args):
-    track_record = pd.read_csv(f"{args.artefacts_folder}/result.csv")
+def build_plot_df_wrapper(path, aggregator, do_baseline):
+    track_record = pd.read_csv(f"{path}/result.csv")
     track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
-    df = process_results(args.aggregator, args.do_baseline, track_record)
+    df = process_results(aggregator, do_baseline, track_record)
     stake = compute_stake(df)
-    return build_plot_df(stake, args.do_baseline, df)
+    return build_plot_df(stake, do_baseline, df)
