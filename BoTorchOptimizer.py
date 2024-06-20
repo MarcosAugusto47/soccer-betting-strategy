@@ -17,8 +17,8 @@ from botorch.models.transforms.input import Normalize
 
 class BoTorchOptimizer:
     
-    def __init__(self, public_odd, real_probabilities, event, games_ids, df_probs_dict):
-        self.n_iterations = 100
+    def __init__(self, n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict):
+        self.n_iterations = n_iterations
         self.public_odd = public_odd
         self.real_probabilities = real_probabilities
         self.event = event
@@ -113,7 +113,7 @@ class BoTorchOptimizer:
                             prob_ij = prob_i * prob_j
 
                         term2_sublist.append(theta_ij*prob_ij)
-
+                        
             term2_list.append(torch.stack(term2_sublist))
 
         term2_list = torch.stack(term2_list)
@@ -204,7 +204,7 @@ class BoTorchOptimizer:
             # Optimize the acquisition function to find new candidate
             candidate, _ = optimize_acqf(
                 acq_function=acq_func,
-                bounds=torch.tensor([[-5.]*self.n, [5.]*self.n]), # bounds that best behave when mapping via softmax in the end
+                bounds=torch.tensor([[-10.]*self.n, [10.]*self.n]), # bounds that best behave when mapping via softmax in the end
                 q=1,  # Number of points to generate
                 num_restarts=10,  # Number of restarts in optimization
                 raw_samples=512,  # Number of samples for initialization

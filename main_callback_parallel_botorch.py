@@ -39,7 +39,8 @@ def setup(args):
 
     odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
 
-    odds = odds[(odds.Datetime.apply(str)<"2019-12-08")]
+    #odds = odds[(odds.Datetime.apply(str)>"2019-08-01")&(odds.Datetime.apply(str)<"2019-09-01")]
+    odds = odds[(odds.Datetime.apply(str)>"2023-01-01")]
     
     # odds = odds[
     #     (odds.Datetime.apply(str) > "2019-06-01")
@@ -80,8 +81,8 @@ def process_group(
 
         odds_dt = pd.concat(odds_dict.values())
 
-        #if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
-        if len(odds_dt) <= config.max_vector_length :
+        if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
+        #if len(odds_dt) <= config.max_vector_length :
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
             print(f"Date: {iteration_date}")
 
@@ -97,6 +98,7 @@ def process_group(
 
 
                 optimizer_instance = BoTorchOptimizer(
+                    n_iterations=args.n_iterations,
                     public_odd=odds_favorable,
                     real_probabilities=real_prob_favorable,
                     event=event_favorable,
@@ -153,12 +155,9 @@ def run_strategy(args):
     odds, gameid_to_outcome = setup(args)
 
     grouped = odds.groupby(args.aggregator)
-    
-    # Use all available CPU cores for parallel execution
-    num_jobs = 1
-    
+    print(f"The number of jobs is: {args.n_jobs}")
     # Parallelize the group processing
-    results = Parallel(n_jobs=num_jobs)(
+    results = Parallel(n_jobs=args.n_jobs)(
         delayed(process_group)(group, gameid_to_outcome, args) for group in grouped
     )
 
@@ -174,6 +173,7 @@ def run_strategy(args):
         mlflow.log_param("bets_per_game", args.bets_per_game)
         mlflow.log_param("weight", args.weight)
         mlflow.log_param("do_baseline", args.do_baseline)
+        mlflow.log_param("n_iterations", args.n_iterations)
 
 
         if args.save_experiment:
@@ -201,18 +201,18 @@ def run_strategy(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--bookmakers',
+        nargs='+',
+        default=None,
+        help='A list of strings',
+    )
+    parser.add_argument(
         "--aggregator", type=str, help="aggregate by GameId or by Datetime"
     )
     parser.add_argument(
         "--min_games",
         type=int,
         default=0,
-        help="threshold of minimum number of games to enter the optimization task",
-    )
-    parser.add_argument(
-        "--bookmakers",
-        type=int,
-        default=None,
         help="threshold of minimum number of games to enter the optimization task",
     )
     parser.add_argument(
@@ -225,9 +225,21 @@ if __name__ == "__main__":
         help="weight of the linear combination filter",
     )
     parser.add_argument(
+        "--n_iterations",
+        type=int,
+        default=10,
+        help="number of iterations to run the optimization task",
+    )
+    parser.add_argument(
         "--do_baseline",
         action="store_true",
         help="flag to apply baseline logic or not, not specifying the argument return the opposite of the action",
+    )
+    parser.add_argument(
+        "--n_jobs",
+        type=int,
+        default=1,
+        help="number of jobs to run in parallel",
     )
     parser.add_argument(
         "--save_experiment",

@@ -8,7 +8,7 @@ from itertools import chain
 def load_metadata_artefacts(file_path: str):
     metadata = pd.read_parquet(file_path)
     metadata = metadata[~metadata.Home_score.isna()]
-    metadata['Datetime'] = pd.to_datetime(metadata['Datetime']).dt.date
+    metadata['Datetime'] = pd.to_datetime(metadata['Datetime'], format="ISO8601", utc=True).dt.date
     metadata['Home_score'] = metadata.Home_score.apply(int)
     metadata['Away_score'] = metadata.Away_score.apply(int)
     metadata['Outcome'] = metadata.apply(lambda x: f"{str(x['Home_score'])} : { str(x['Away_score'])}", axis=1)
@@ -24,16 +24,19 @@ def load_map(file_path):
         return json.load(json_file)
 
 
-def load_odds(file_path, n=None):
+def load_odds(file_path, bookmakers=None):
     df = pd.read_parquet(file_path)
     df = df[df.League=="Brasileirão Série A"].drop("League", axis=1)
     #df = df[df.Market!="spread"]
     df['Odd'] = df['Odd'].astype(float)
     df['public_prob'] = 1/df['Odd']
 
-    if n:
-        sportsbook_list = list(df.Sportsbook.value_counts().index)[0:n]
-        df = df[df.Sportsbook.isin(sportsbook_list)]
+    #if n:
+    #    sportsbook_list = list(df.Sportsbook.value_counts().index)[0:n]
+    #    df = df[df.Sportsbook.isin(sportsbook_list)]
+
+    if bookmakers:
+        df = df[df.Sportsbook.isin(bookmakers)]
 
     return df
 

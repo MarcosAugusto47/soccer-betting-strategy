@@ -16,7 +16,6 @@ from dependencies.utils import (
     get_scenarios,
     get_bet_return,
 )
-from config import games_ids as GAMES_IDS
 from joblib import Parallel, delayed
 from typing import Tuple
 from time import time
@@ -25,6 +24,10 @@ from filter import filter_by_linear_combination
 metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata-with-date.parquet")
 odds = load_odds("data/odds.parquet")
 odds = join_metadata(odds, metadata)
+
+print(odds.shape)
+
+odds = odds[(odds.Datetime.apply(str)>"2022-01-01")]
 
 
 def process_group(group: Tuple[str, pd.DataFrame]):
@@ -49,7 +52,7 @@ def process_group(group: Tuple[str, pd.DataFrame]):
 
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
 
-            odds_sample = filter_by_linear_combination(odds_sample)
+            odds_sample = filter_by_linear_combination(odds_sample, n=20)
                        
             #logger.info(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
             #print(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
