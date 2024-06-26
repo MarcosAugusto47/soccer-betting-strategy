@@ -7,11 +7,9 @@ from typing import Any, List, Tuple
 
 import numpy as np
 import pandas as pd
+import torch
 from joblib import Parallel, delayed
 
-from analytical_return import (
-    compute_objective_via_analytical,
-)
 from artifacts import (
     build_plot_df_wrapper,
     save_csv_artifact,
@@ -27,7 +25,7 @@ from dependencies.config import load_config
 from dependencies.utils import get_bet_return, softmax
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
-from Optimizer import Optimizer
+from MOBO import MOBO
 
 config = load_config("config/config.yml")
 
@@ -78,18 +76,26 @@ def process_group(group: Tuple[str, pd.DataFrame], gameid_to_outcome, args) -> L
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
             print(f"Date: {iteration_date}")
 
-            odds_favorable = np.array(odds_dt['Odd'])
-            real_prob_favorable = np.array(odds_dt['real_prob'])
+            odds_favorable = torch.tensor(np.array(odds_dt['Odd']))
+            real_prob_favorable = torch.tensor(np.array(odds_dt['real_prob']))
             event_favorable = list(odds_dt['BetMap'].values)
             games_ids = np.array(odds_dt['GameId'])
 
             #try:
-            print("Execution of minimization task...")    
-            solution, time_limit_flag = Optimizer().run_optimization(
-                fun=compute_objective_via_analytical,
-                x0=np.zeros(len(odds_favorable)),
-                args=(odds_favorable, real_prob_favorable, event_favorable, games_ids, df_probs_dict)
-            )               
+            print("Execution of minimization task...")
+
+            time_limit_flag = None
+
+            optimizer_instance = MOBO(
+                public_odd=odds_favorable,
+                real_probabilities=real_prob_favorable,
+                event=event_favorable,
+                games_ids=games_ids,
+                df_probs_dict=df_probs_dict
+            )
+            
+            _, _, solution = optimizer_instance.run_optimization()
+            solution = solution[-1]
             print("Finalization of minimization task...")
 
             #except ValueError:
@@ -98,7 +104,7 @@ def process_group(group: Tuple[str, pd.DataFrame], gameid_to_outcome, args) -> L
             if any(math.isnan(x) for x in solution):
                 is_valid_solution = False
             odds_dt['solution'] = softmax(solution)
-
+            print(softmax(solution))
             track_record = []
 
             for game_id, game_data in odds_dt.groupby('GameId', sort=False):
@@ -128,7 +134,7 @@ def run_strategy(args):
     grouped = odds.groupby(args.aggregator)
     
     # Use all available CPU cores for parallel execution
-    num_jobs = 4
+    num_jobs = 3
     # Parallelize the group processing
     results = Parallel(n_jobs=num_jobs)(delayed(process_group)(group, gameid_to_outcome, args) for group in grouped)
 
@@ -139,7 +145,7 @@ def run_strategy(args):
 
         # Create artefacts folder
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        artefacts_folder = f"artefacts/aggregator{args.aggregator}_min_games{args.min_games}_bookmakers{args.bookmakers}_do_baseline{args.do_baseline}_{timestamp}"
+        artefacts_folder = f"artefacts/mobo_aggregator{args.aggregator}_min_games{args.min_games}_bookmakers{args.bookmakers}_do_baseline{args.do_baseline}_{timestamp}"
         os.makedirs(artefacts_folder)
         args.artefacts_folder = artefacts_folder
 

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import logging
 
+from dependencies.utils import softmax
 from scipy.optimize import minimize
 from itertools import chain
 from typing import Dict
@@ -94,11 +95,6 @@ def variance(second_moment, expectation):
     return second_moment - (expectation)**2
 
 
-def softmax(x):
-    """Compute softmax values for each sets of scores in x."""
-    return np.exp(x) / np.sum(np.exp(x), axis=0)
-
-
 def compute_objective_via_analytical(
     x: np.ndarray,
     public_odd: np.ndarray,
@@ -133,24 +129,3 @@ def compute_objective_via_analytical(
     output = my_expectation / my_sigma
 
     return -output
-
-
-def minimize_analytical(public_odd, real_probabilities, event, games_ids, df_probs_dict):
-    
-    # Set initial guess
-    x0 = np.zeros(len(public_odd))
-   
-    args = (public_odd, real_probabilities, event, games_ids, df_probs_dict)
-    
-    res = minimize(fun=compute_objective_via_analytical,
-                   x0=x0,
-                   args=args,
-                   tol=0.1,
-                   #method='Powell',
-                   #options={'maxiter': 3, 'disp': True, 'return_all': True}
-                   )
-    
-    if res.success:
-        return res.x
-    else: 
-        raise ValueError(res.message)

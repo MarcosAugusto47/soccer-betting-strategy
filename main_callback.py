@@ -3,7 +3,6 @@ import pandas as pd
 import logging
 
 from analytical_return import (
-    softmax,
     compute_objective_via_analytical,
 )
 from data import (
@@ -17,6 +16,7 @@ from Optimizer import Optimizer
 from utils import get_bet_return
 from config import games_ids as GAMES_IDS
 from time import time
+from dependencies.utils import softmax
 
 start_time = time()
 
