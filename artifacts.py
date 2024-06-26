@@ -1,12 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from loguru import logger
 
 
 def save_csv_artifact(folder, path, data):
 
     csv_file_path = f"{folder}/{path}.csv"
     data.to_csv(csv_file_path, index=False)
-    print(f"CSV Artifact saved to: {csv_file_path}")
+    logger.info(f"CSV Artifact saved to: {csv_file_path}")
 
 
 def process_results(aggregator, do_baseline, track_record):

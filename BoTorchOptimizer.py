@@ -10,7 +10,6 @@ from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.optim import optimize_acqf
 from botorch.acquisition import ExpectedImprovement
 from botorch.utils import standardize, draw_sobol_samples
-from botorch.utils.transforms import normalize, unnormalize
 
 from botorch.models.transforms.input import Normalize
 
@@ -176,7 +175,12 @@ class BoTorchOptimizer:
     
     def run_optimization(self):
         
-        train_X = draw_sobol_samples(bounds=torch.tensor([[0.001]*self.n, [0.1]*self.n]), n=1, q=5).squeeze(0).double()  # 5 initial points
+        train_X = draw_sobol_samples(
+            bounds=torch.tensor([[0.001]*self.n, [0.1]*self.n]),
+            n=1,
+            q=5,
+            seed=47,
+        ).squeeze(0).double()  # 5 initial points
         train_Y = self.objective_function(train_X)
 
         # Initialize best observed point and value
@@ -205,7 +209,7 @@ class BoTorchOptimizer:
             candidate, _ = optimize_acqf(
                 acq_function=acq_func,
                 bounds=torch.tensor([[-10.]*self.n, [10.]*self.n]), # bounds that best behave when mapping via softmax in the end
-                q=1,  # Number of points to generate
+                q=1,  # Number of points to generate, do not change
                 num_restarts=10,  # Number of restarts in optimization
                 raw_samples=512,  # Number of samples for initialization
             )
@@ -221,6 +225,7 @@ class BoTorchOptimizer:
 
             # Update the best observed value and candidate if the new candidate is better
             if new_y > best_value:
+                #print(f"New best value found: {new_y}")
                 best_value = new_y
                 best_candidate = candidate
 

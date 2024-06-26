@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import torch
 from joblib import Parallel, delayed
+from sparsemax import Sparsemax
 
 from artifacts import (
     build_plot_df_wrapper,
@@ -27,19 +28,21 @@ from dependencies.config import load_config
 from dependencies.utils import get_bet_return, save_df_as_parquet, softmax
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
+from loguru import logger
 
 config = load_config("config/config.yml")
 
 
 def setup(args):
+
     metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
     odds = load_odds(config.odds_path, args.bookmakers)
-    print(odds.shape)
     odds = join_metadata(odds, metadata)
 
     odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
 
     #odds = odds[(odds.Datetime.apply(str)>"2019-08-01")&(odds.Datetime.apply(str)<"2019-09-01")]
+    #odds = odds[(odds.Datetime.apply(str)>"2022-01-01")&(odds.Datetime.apply(str)<"2023-01-01")]
     odds = odds[(odds.Datetime.apply(str)>"2023-01-01")]
     
     # odds = odds[
@@ -84,7 +87,7 @@ def process_group(
         if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
         #if len(odds_dt) <= config.max_vector_length :
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
-            print(f"Date: {iteration_date}")
+            logger.info(f"Date: {iteration_date}")
 
             odds_favorable = torch.tensor(np.array(odds_dt["Odd"]))
             real_prob_favorable = torch.tensor(np.array(odds_dt["real_prob"]))
@@ -94,7 +97,7 @@ def process_group(
 
             if not args.do_baseline:
                 # try:
-                print("Execution of minimization task...")
+                logger.info("Execution of minimization task...")
 
 
                 optimizer_instance = BoTorchOptimizer(
@@ -108,29 +111,36 @@ def process_group(
 
                 solution = optimizer_instance.run_optimization()
 
-                print("Finalization of minimization task...")
+                logger.info("Finalization of minimization task...")
 
                 # except ValueError:
                 # continue
 
                 if any(math.isnan(x) for x in solution):
                     is_valid_solution = False
-                odds_dt["solution"] = softmax(solution)
-            
+                
+                if args.probability_mapping == "sparsemax":
+                    odds_dt["solution"] = Sparsemax(dim=-1)(torch.tensor(np.array([solution]))).tolist()[0]
+                
+                elif args.probability_mapping == "softmax":
+                    odds_dt["solution"] = softmax(solution)
+
             else:
                 odds_dt["solution"] = 1
 
             save_df_as_parquet(odds_dt, str(date))
 
             track_record = []
+            
+            financial_return_aggregated = 0
 
             for game_id, game_data in odds_dt.groupby("GameId", sort=False):
                 scenario = gameid_to_outcome[game_id]
                 financial_return = get_bet_return(
                     df=game_data, allocation_array=game_data.solution, scenario=scenario
                 )
-
-                print(
+                financial_return_aggregated += financial_return
+                logger.info(
                     f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}"
                 )
 
@@ -145,6 +155,13 @@ def process_group(
                         iteration_date,
                     ]
                 )
+            
+
+            if financial_return_aggregated < 1:
+                logger.warning(f"Negative return for the day {iteration_date}")
+            
+            else:
+                logger.info(f"Positive return for the day {iteration_date}")
 
             return track_record
 
@@ -152,10 +169,21 @@ def process_group(
 def run_strategy(args):
     start_time = time()
 
+    logger.info("Starting the strategy...")
+    logger.info(f"Aggregator: {args.aggregator}")
+    logger.info(f"Minimum number of games: {args.min_games}")
+    logger.info(f"Bookmakers: {args.bookmakers}")
+    logger.info(f"Number of bets per game: {args.bets_per_game}")
+    logger.info(f"Weight: {args.weight}")
+    logger.info(f"Do baseline: {args.do_baseline}")
+    logger.info(f"Number of iterations: {args.n_iterations}")
+    logger.info(f"Probability mapping: {args.probability_mapping}")
+    logger.info(f"Number of jobs: {args.n_jobs}")
+    logger.info(f"Save experiment: {args.save_experiment}")
+
     odds, gameid_to_outcome = setup(args)
 
     grouped = odds.groupby(args.aggregator)
-    print(f"The number of jobs is: {args.n_jobs}")
     # Parallelize the group processing
     results = Parallel(n_jobs=args.n_jobs)(
         delayed(process_group)(group, gameid_to_outcome, args) for group in grouped
@@ -172,8 +200,11 @@ def run_strategy(args):
         mlflow.log_param("bookmakers", args.bookmakers)
         mlflow.log_param("bets_per_game", args.bets_per_game)
         mlflow.log_param("weight", args.weight)
+        mlflow.log_param("probability_mapping", args.probability_mapping)
         mlflow.log_param("do_baseline", args.do_baseline)
         mlflow.log_param("n_iterations", args.n_iterations)
+        mlflow.log_param("start_date", odds.Datetime.min())
+        mlflow.log_param("end_date", odds.Datetime.max())
 
 
         if args.save_experiment:
@@ -195,7 +226,7 @@ def run_strategy(args):
         mlflow.end_run()
 
     elapsed_time = time() - start_time
-    print("Final Elapsed: %.3f sec" % elapsed_time)
+    logger.info("Final Elapsed: %.3f sec" % elapsed_time)
 
 
 if __name__ == "__main__":
@@ -212,7 +243,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--min_games",
         type=int,
-        default=0,
+        default=1,
         help="threshold of minimum number of games to enter the optimization task",
     )
     parser.add_argument(
@@ -225,9 +256,15 @@ if __name__ == "__main__":
         help="weight of the linear combination filter",
     )
     parser.add_argument(
+        "--probability_mapping",
+        type=str,
+        default="softmax",
+        help="probability mapping function to use",
+    )
+    parser.add_argument(
         "--n_iterations",
         type=int,
-        default=10,
+        default=100,
         help="number of iterations to run the optimization task",
     )
     parser.add_argument(

@@ -68,6 +68,30 @@ def softmax(x):
     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 
+def sparsemax(x):
+    """
+    Compute sparsemax values for each set of scores in x.
+    """
+    # Sort x in descending order
+    x_sorted = np.sort(x)[::-1]
+    
+    # Compute the cumulative sum of sorted values
+    cum_sum = np.cumsum(x_sorted)
+    
+    # Compute the threshold for sparsemax
+    k = np.arange(1, len(x) + 1)
+    threshold = (cum_sum - k) / k
+    
+    # Find the index where x_sorted is greater than the threshold
+    tau = np.maximum(x_sorted - threshold, 0)
+    
+    # Reconstruct the sparsemax output
+    sparsemax_values = np.zeros_like(x)
+    sparsemax_values[np.argsort(x)[::-1]] = tau
+    
+    return sparsemax_values
+
+
 def save_df_as_parquet(df, filename, directory='EDA'):
     """
     Saves a DataFrame to a specified Parquet file within a given directory.
