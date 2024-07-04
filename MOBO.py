@@ -24,8 +24,8 @@ torch.set_default_dtype(torch.float64)
 
 class MOBO:
 
-    def __init__(self, public_odd, real_probabilities, event, games_ids, df_probs_dict):
-        self.n_iterations = 50
+    def __init__(self, n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict):
+        self.n_iterations = n_iterations
         self.public_odd = public_odd
         self.real_probabilities = real_probabilities
         self.event = event
@@ -122,7 +122,7 @@ class MOBO:
                             prob_ij = prob_i * prob_j
 
                         term2_sublist.append(theta_ij*prob_ij)
-
+                        
             term2_list.append(torch.stack(term2_sublist))
 
         term2_list = torch.stack(term2_list)
