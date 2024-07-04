@@ -220,7 +220,7 @@ def run_strategy(args):
         mlflow.log_param("timestamp", timestamp)
         mlflow.log_artifact(f"{artefacts_folder}/result_plot.csv")
         mlflow.log_artifact(f"{artefacts_folder}/plot.PNG")
-        mlflow.log_metric("wealth", df_plot["stake"].values[-1])
+        mlflow.log_metric("wealth", np.round(df_plot["stake"].values[-1], 3))
 
         # End the MLflow run
         mlflow.end_run()
