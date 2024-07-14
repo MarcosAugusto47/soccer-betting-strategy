@@ -17,7 +17,7 @@ from artifacts import (
     save_csv_artifact,
     save_plot_strategy,
 )
-from MOBO_v2 import MOBO
+from MOBODecomposedSharpeRatio import MOBO
 from data import (
     apply_final_treatment,
     join_metadata,
