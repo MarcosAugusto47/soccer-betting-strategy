@@ -208,7 +208,7 @@ class BoTorchOptimizer:
             # Optimize the acquisition function to find new candidate
             candidate, _ = optimize_acqf(
                 acq_function=acq_func,
-                bounds=torch.tensor([[-10.]*self.n, [10.]*self.n]), # bounds that best behave when mapping via softmax in the end
+                bounds=torch.tensor([[0.]*self.n, [10.]*self.n]), # bounds that best behave when mapping via softmax in the end
                 q=1,  # Number of points to generate, do not change
                 num_restarts=10,  # Number of restarts in optimization
                 raw_samples=512,  # Number of samples for initialization
@@ -225,7 +225,7 @@ class BoTorchOptimizer:
 
             # Update the best observed value and candidate if the new candidate is better
             if new_y > best_value:
-                #print(f"New best value found: {new_y}")
+                #print(f"New best value found: {new_y} in iterataion {iteration+1}/{self.n_iterations}")
                 best_value = new_y
                 best_candidate = candidate
 
