@@ -17,7 +17,7 @@ from artifacts import (
     save_csv_artifact,
     save_plot_strategy,
 )
-from MOBO import MOBO
+from MOBO_v2 import MOBO
 from data import (
     apply_final_treatment,
     join_metadata,
@@ -43,7 +43,7 @@ def setup(args):
 
     #odds = odds[(odds.Datetime.apply(str)>"2019-08-01")&(odds.Datetime.apply(str)<"2019-09-01")]
     #odds = odds[(odds.Datetime.apply(str)>"2022-01-01")&(odds.Datetime.apply(str)<"2023-01-01")]
-    odds = odds[(odds.Datetime.apply(str)>"2023-09-02")]
+    odds = odds[(odds.Datetime.apply(str)>"2023-01-02")]
     
     # odds = odds[
     #     (odds.Datetime.apply(str) > "2019-06-01")
@@ -98,6 +98,8 @@ def process_group(
             if not args.do_baseline:
                 # try:
                 logger.info("Execution of minimization task...")
+
+
                 optimizer_instance = MOBO(
                     n_iterations=args.n_iterations,
                     public_odd=odds_favorable,
@@ -108,7 +110,10 @@ def process_group(
                 )
                 
                 _, _, solution = optimizer_instance.run_optimization()
-                solution = solution[-1]
+
+        
+                solution = solution[0]
+                import pdb; pdb.set_trace()
                 logger.info("Finalization of minimization task...")
 
             # except ValueError:
@@ -119,7 +124,7 @@ def process_group(
             odds_dt['solution'] = softmax(solution)
             print(softmax(solution))
             track_record = []
-
+            
             financial_return_aggregated = 0
 
             for game_id, game_data in odds_dt.groupby("GameId", sort=False):
