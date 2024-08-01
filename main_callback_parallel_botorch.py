@@ -40,17 +40,11 @@ def setup(args):
     odds = join_metadata(odds, metadata)
 
     odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
-
-    #odds = odds[(odds.Datetime.apply(str)>"2019-08-01")&(odds.Datetime.apply(str)<"2019-09-01")]
-    #odds = odds[(odds.Datetime.apply(str)>"2022-01-01")&(odds.Datetime.apply(str)<"2023-01-01")]
-    odds = odds[(odds.Datetime.apply(str)>"2023-01-01")]
     
-    # odds = odds[
-    #     (odds.Datetime.apply(str) > "2019-06-01")
-    #     & (odds.Datetime.apply(str) < "2019-07-01")
-    # ]
-
-    # odds = odds[odds]
+    odds = odds[
+        (odds.Datetime.apply(str) >= args.date_start)
+        & (odds.Datetime.apply(str) < args.date_end)
+    ]
 
     return odds, gameid_to_outcome
 
@@ -170,6 +164,8 @@ def run_strategy(args):
     start_time = time()
 
     logger.info("Starting the strategy...")
+    logger.info(f"Start date: {args.date_start}")
+    logger.info(f"End date: {args.date_end}")
     logger.info(f"Aggregator: {args.aggregator}")
     logger.info(f"Minimum number of games: {args.min_games}")
     logger.info(f"Bookmakers: {args.bookmakers}")
@@ -203,8 +199,8 @@ def run_strategy(args):
         mlflow.log_param("probability_mapping", args.probability_mapping)
         mlflow.log_param("do_baseline", args.do_baseline)
         mlflow.log_param("n_iterations", args.n_iterations)
-        mlflow.log_param("start_date", odds.Datetime.min())
-        mlflow.log_param("end_date", odds.Datetime.max())
+        mlflow.log_param("start_date", args.date_start)
+        mlflow.log_param("end_date", args.date_end)
 
 
         if args.save_experiment:
@@ -231,6 +227,18 @@ def run_strategy(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--date_start",
+        type=str,
+        default="2019-01-01",
+        help="start date of the dataset",
+    )
+    parser.add_argument(
+        "--date_end",
+        type=str,
+        default="2024-01-01",
+        help="end date of the dataset",
+    )
     parser.add_argument(
         '--bookmakers',
         nargs='+',
