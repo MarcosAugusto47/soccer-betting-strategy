@@ -1,6 +1,6 @@
 # data paths
 metadata_path: "data/metadata-with-date-new.parquet"
-odds_path: "data/odds-new.parquet"
+odds_path: "data/odds-new-correct.parquet"
 
 # bet vector constants
-max_vector_length: 40
+max_vector_length: 1000

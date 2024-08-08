@@ -13,7 +13,7 @@ python main_callback_parallel_botorch.py \
     --weight 0.5 \
     --probability_mapping softmax \
     --n_iterations 100 \
-    --n_jobs 9 \
+    --n_jobs 1 \
     --save_experiment
 
 python main_baseline_kreiner.py \

@@ -25,9 +25,9 @@ def process_results(aggregator, do_baseline, track_record):
     return track_record
 
 
-def compute_stake(df, percentage=0.10):
-    stake = [1]
-    current_stake = 1
+def compute_stake(df, stake=1, percentage=0.10):
+    stake = [stake]
+    current_stake = stake[0]
 
     for i in df['return']:
 
@@ -36,6 +36,16 @@ def compute_stake(df, percentage=0.10):
         current_stake = preserved_stake + bet_stake*i
 
         stake.append(current_stake)
+    
+    return stake
+
+
+def compute_stake_baseline_kreiner(df, budget=100):
+    stake = [budget]
+
+    for index, r in enumerate(df['return']):
+        budget = budget - df['n_bets'][index] + r
+        stake.append(budget)
     
     return stake
 
@@ -75,4 +85,12 @@ def build_plot_df_wrapper(path, aggregator, do_baseline):
     track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
     df = process_results(aggregator, do_baseline, track_record)
     stake = compute_stake(df)
+    return build_plot_df(stake, do_baseline, df)
+
+
+def build_plot_df_wrapper_baseline_kreiner(path, aggregator, do_baseline):
+    track_record = pd.read_csv(f"{path}/result.csv")
+    track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
+    df = process_results(aggregator, do_baseline, track_record)
+    stake = compute_stake_baseline_kreiner(df)
     return build_plot_df(stake, do_baseline, df)

@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import numpy as np
+import pdb
 
 from itertools import chain
 
@@ -156,12 +157,13 @@ def apply_final_treatment(
 
     # Get flat table from instance of DataFrameFromBetMap
     map_bet = DataFrameFromBetMap().get_flat()
-
     # Add column of list of map of bets
     df_odds = pd.merge(df_odds, map_bet, on=['Market', 'Bet', 'Scenario'], how='left')
-
+    
+    assert df_odds[(df_odds.Market=="over/under")&(df_odds.Scenario.str.contains(r'\.5$', regex=True))].BetMap.isna().sum() == 0, "There are missing BetMap values for relevant over/under market"
+    #assert df_odds[df_odds.Market!="over/under"].BetMap.isna().sum() == 0, "There are missing BetMap values in over/under market"
+    
     df_odds = df_odds.dropna(subset=['BetMap']).reset_index(drop=True)
-
     def add_real_prob(x: list, df_real_prob: pd.DataFrame) -> float:
         """
         Add the real probability of a bet event via the multiplicaiton
@@ -172,7 +174,7 @@ def apply_final_treatment(
         matrix_mult = bet_matrix * df_real_prob.to_numpy()
 
         return sum(list(chain(*matrix_mult)))
-
+    
     # Compute the real probabilitity of the event associated to the bet
     df_odds['real_prob'] = df_odds.BetMap.apply(lambda x: add_real_prob(x, df_real_prob))
 
