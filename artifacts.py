@@ -1,12 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from loguru import logger
 
 
 def save_csv_artifact(folder, path, data):
 
     csv_file_path = f"{folder}/{path}.csv"
     data.to_csv(csv_file_path, index=False)
-    print(f"CSV Artifact saved to: {csv_file_path}")
+    logger.info(f"CSV Artifact saved to: {csv_file_path}")
 
 
 def process_results(aggregator, do_baseline, track_record):
@@ -24,10 +25,10 @@ def process_results(aggregator, do_baseline, track_record):
     return track_record
 
 
-def compute_stake(df):
-    stake = [1]
-    current_stake = 1
-    percentage = 0.10
+def compute_stake(df, stake=1, percentage=0.10):
+    stake = [stake]
+    current_stake = stake[0]
+
     for i in df['return']:
 
         preserved_stake = current_stake * (1-percentage)
@@ -35,6 +36,16 @@ def compute_stake(df):
         current_stake = preserved_stake + bet_stake*i
 
         stake.append(current_stake)
+    
+    return stake
+
+
+def compute_stake_baseline_kreiner(df, budget=100):
+    stake = [budget]
+
+    for index, r in enumerate(df['return']):
+        budget = budget - df['n_bets'][index] + r
+        stake.append(budget)
     
     return stake
 
@@ -56,7 +67,7 @@ def build_plot_df(stake, do_baseline, df):
     return plot_df
 
 
-def save_plot_strategy(args, df):
+def save_plot_strategy(path, df):
     """ Create a line plot."""
     plt.figure(figsize=(20, 6))
     plt.plot(df.date, df.stake, linestyle='-')
@@ -66,12 +77,20 @@ def save_plot_strategy(args, df):
     plt.xticks(rotation=90)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(f"{args.artefacts_folder}/plot.PNG")
+    plt.savefig(f"{path}/plot.PNG")
 
 
-def build_plot_df_wrapper(args):
-    track_record = pd.read_csv(f"{args.artefacts_folder}/result.csv")
+def build_plot_df_wrapper(path, aggregator, do_baseline):
+    track_record = pd.read_csv(f"{path}/result.csv")
     track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
-    df = process_results(args.aggregator, args.do_baseline, track_record)
+    df = process_results(aggregator, do_baseline, track_record)
     stake = compute_stake(df)
-    return build_plot_df(stake, args.do_baseline, df)
+    return build_plot_df(stake, do_baseline, df)
+
+
+def build_plot_df_wrapper_baseline_kreiner(path, aggregator, do_baseline):
+    track_record = pd.read_csv(f"{path}/result.csv")
+    track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
+    df = process_results(aggregator, do_baseline, track_record)
+    stake = compute_stake_baseline_kreiner(df)
+    return build_plot_df(stake, do_baseline, df)

@@ -3,7 +3,7 @@ import numpy as np
 
 def filter_by_linear_combination(
         df: pd.DataFrame,
-        n: int = 5,
+        n: int = 4,  #6
         weight: float = 0.5
 ) -> pd.DataFrame:
     """
@@ -14,7 +14,7 @@ def filter_by_linear_combination(
     """
     df.drop_duplicates(subset=['Market', 'Scenario', 'Bet'], inplace=True)
 
-    df['odd_dist'] = np.round((df['Odd'] - 1/df['real_prob']) / df['Odd'], 1)
+    df['odd_dist'] = (df['Odd'] - 1/df['real_prob']) / df['Odd']
     df['score'] = weight*df['odd_dist'] + (1-weight)*(df['real_prob'])
-    
+    df['expected_return'] = df['real_prob'] * df['Odd']
     return df.sort_values(['score'], ascending=False).head(n)

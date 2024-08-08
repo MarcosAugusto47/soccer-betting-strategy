@@ -13,7 +13,7 @@ from joblib import Parallel, delayed
 from sparsemax import Sparsemax
 
 from artifacts import (
-    build_plot_df_wrapper,
+    build_plot_df_wrapper_baseline_kreiner,
     save_csv_artifact,
     save_plot_strategy,
 )
@@ -27,7 +27,7 @@ from data import (
 from dependencies.config import load_config
 from dependencies.utils import get_bet_return, save_df_as_parquet, softmax
 from filter import filter_by_linear_combination
-from GameProbs import GameProbs
+from GameProbs2 import GameProbs, PreprocessKreiner
 from loguru import logger
 
 config = load_config("config/config.yml")
@@ -38,13 +38,29 @@ def setup(args):
     metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
     odds = load_odds(config.odds_path, args.bookmakers)
     odds = join_metadata(odds, metadata)
+    
+    replacements = {
+        'h': 'home',
+        'a': 'away',
+        'r': 'draw',
+    }
+
+    odds["Bet"] = odds["Bet"].replace(replacements)
+    
+    odds = odds[(odds.Market=="h2h")]
 
     odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
+
+    #odds = odds[(odds.Datetime.apply(str)>"2019-08-01")&(odds.Datetime.apply(str)<"2019-09-01")]
+    #odds = odds[(odds.Datetime.apply(str)>"2022-01-01")&(odds.Datetime.apply(str)<"2023-01-01")]
+    odds = odds[(odds.Datetime.apply(str)>="2022-01-01")&(odds.Datetime.apply(str)<"2023-01-01")]
     
-    odds = odds[
-        (odds.Datetime.apply(str) >= args.date_start)
-        & (odds.Datetime.apply(str) < args.date_end)
-    ]
+    # odds = odds[
+    #     (odds.Datetime.apply(str) > "2019-06-01")
+    #     & (odds.Datetime.apply(str) < "2019-07-01")
+    # ]
+
+    # odds = odds[odds]
 
     return odds, gameid_to_outcome
 
@@ -65,19 +81,24 @@ def process_group(
 
     if len(games_ids) > args.min_games:
         for game_id in games_ids:
-            df = GameProbs(game_id).build_dataframe()
-
+            logger.info(f"GameId: {game_id}")
+            preprocess_method = PreprocessKreiner(game_id)
+            df = GameProbs(preprocess_method).build_dataframe()
             odds_sample = group_data[(group_data.GameId == game_id)]
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
             if not args.do_baseline:
                 odds_sample = filter_by_linear_combination(odds_sample, n=args.bets_per_game, weight=args.weight)
-            else:
-                odds_sample = odds_sample.sample(1)
+            #else:
+            #    odds_sample = odds_sample.sample(1)
             odds_dict[game_id] = odds_sample
             df_probs_dict[game_id] = df
 
         odds_dt = pd.concat(odds_dict.values())
 
+
+        # Here, we are getting the top bets as proxy for the implementation of the Kreiner paper
+        # odds_dt = odds_dt.sample(30)
+        
         if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
         #if len(odds_dt) <= config.max_vector_length :
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
@@ -94,30 +115,23 @@ def process_group(
                 logger.info("Execution of minimization task...")
 
 
-                optimizer_instance = BoTorchOptimizer(
-                    n_iterations=args.n_iterations,
-                    public_odd=odds_favorable,
-                    real_probabilities=real_prob_favorable,
-                    event=event_favorable,
-                    games_ids=games_ids,
-                    df_probs_dict=df_probs_dict,
-                )
+                # optimizer_instance = BoTorchOptimizer(
+                #     n_iterations=args.n_iterations,
+                #     public_odd=odds_favorable,
+                #     real_probabilities=real_prob_favorable,
+                #     event=event_favorable,
+                #     games_ids=games_ids,
+                #     df_probs_dict=df_probs_dict,
+                # )
 
-                solution = optimizer_instance.run_optimization()
+                allocation = 1
+                solution = [allocation for _ in range(len(odds_favorable))]
+                odds_dt["solution"] = solution
 
                 logger.info("Finalization of minimization task...")
 
-                # except ValueError:
-                # continue
-
                 if any(math.isnan(x) for x in solution):
                     is_valid_solution = False
-                
-                if args.probability_mapping == "sparsemax":
-                    odds_dt["solution"] = Sparsemax(dim=-1)(torch.tensor(np.array([solution]))).tolist()[0]
-                
-                elif args.probability_mapping == "softmax":
-                    odds_dt["solution"] = softmax(solution)
 
             else:
                 odds_dt["solution"] = 1
@@ -164,8 +178,6 @@ def run_strategy(args):
     start_time = time()
 
     logger.info("Starting the strategy...")
-    logger.info(f"Start date: {args.date_start}")
-    logger.info(f"End date: {args.date_end}")
     logger.info(f"Aggregator: {args.aggregator}")
     logger.info(f"Minimum number of games: {args.min_games}")
     logger.info(f"Bookmakers: {args.bookmakers}")
@@ -199,8 +211,8 @@ def run_strategy(args):
         mlflow.log_param("probability_mapping", args.probability_mapping)
         mlflow.log_param("do_baseline", args.do_baseline)
         mlflow.log_param("n_iterations", args.n_iterations)
-        mlflow.log_param("start_date", args.date_start)
-        mlflow.log_param("end_date", args.date_end)
+        mlflow.log_param("start_date", odds.Datetime.min())
+        mlflow.log_param("end_date", odds.Datetime.max())
 
 
         if args.save_experiment:
@@ -209,7 +221,7 @@ def run_strategy(args):
             artefacts_folder = f"artefacts/{timestamp}"
             os.makedirs(artefacts_folder)
             save_csv_artifact(artefacts_folder, "result", df_flat)
-            df_plot = build_plot_df_wrapper(artefacts_folder,  args.aggregator, args.do_baseline)
+            df_plot = build_plot_df_wrapper_baseline_kreiner(artefacts_folder,  args.aggregator, args.do_baseline)
             save_csv_artifact(artefacts_folder, "result_plot", df_plot)
             save_plot_strategy(artefacts_folder, df_plot)
         
@@ -227,18 +239,6 @@ def run_strategy(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--date_start",
-        type=str,
-        default="2019-01-01",
-        help="start date of the dataset",
-    )
-    parser.add_argument(
-        "--date_end",
-        type=str,
-        default="2024-01-01",
-        help="end date of the dataset",
-    )
     parser.add_argument(
         '--bookmakers',
         nargs='+',
@@ -276,12 +276,6 @@ if __name__ == "__main__":
         help="number of iterations to run the optimization task",
     )
     parser.add_argument(
-        "--bookmakers",
-        type=int,
-        default=None,
-        help="threshold of minimum number of games to enter the optimization task"
-    )
-    parser.add_argument(
         "--do_baseline",
         action="store_true",
         help="flag to apply baseline logic or not, not specifying the argument return the opposite of the action",
@@ -296,11 +290,6 @@ if __name__ == "__main__":
         "--save_experiment",
         action="store_true",
         help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action",
-    )
-    parser.add_argument(
-        "--save_experiment",
-        action='store_true',
-        help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action"
     )
     args = parser.parse_args()
     print(args)

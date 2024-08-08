@@ -16,16 +16,22 @@ from dependencies.utils import (
     get_scenarios,
     get_bet_return,
 )
-from config import games_ids as GAMES_IDS
 from joblib import Parallel, delayed
 from typing import Tuple
 from time import time
 from filter import filter_by_linear_combination
 
-metadata, gameid_to_outcome = load_metadata_artefacts("data/metadata-with-date.parquet")
-odds = load_odds("data/odds.parquet")
+from dependencies.config import load_config
+config = load_config("config/config.yml")
+
+metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
+odds = load_odds(config.odds_path)
 odds = join_metadata(odds, metadata)
 
+odds = odds[(odds.Datetime.apply(str)>="2023-01-01")&(odds.Datetime.apply(str)<"2024-01-01")]
+
+
+performances = []
 
 def process_group(group: Tuple[str, pd.DataFrame]):
     
@@ -49,7 +55,7 @@ def process_group(group: Tuple[str, pd.DataFrame]):
 
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
 
-            odds_sample = filter_by_linear_combination(odds_sample)
+            odds_sample = filter_by_linear_combination(odds_sample, n=5)
                        
             #logger.info(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
             #print(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
@@ -59,9 +65,7 @@ def process_group(group: Tuple[str, pd.DataFrame]):
 
         odds_dt = pd.concat(odds_dict.values())
 
-        print(f"odds_dt.shape: {odds_dt.shape}")
-
-        if len(odds_dt) <= 80: # > 50
+        if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1: # > 50
             
             print(f"Date: {group_name}")
 
@@ -76,7 +80,12 @@ def process_group(group: Tuple[str, pd.DataFrame]):
                 # Check if scenario is inside the BetMap
                 game_data['flag'] = game_data['BetMap'].apply(get_scenarios).apply(check_scenario)
 
-                print(f"sum(game_data['flag']): {sum(game_data['flag'])}")
+                #print(f"sum(game_data['flag']): {sum(game_data['flag'])}")
+                performance = sum(game_data['flag'])/len(game_data)
+                performances.append(performance)
+                print(f"% Won: {performance}")
+
+                #import pdb; pdb.set_trace()
 
 
 if __name__ == "__main__":
@@ -90,6 +99,8 @@ if __name__ == "__main__":
 
     # Parallelize the group processing
     Parallel(n_jobs=num_jobs)(delayed(process_group)(group) for group in grouped)
+
+    print(f"Mean Performance: {sum(performances)/len(performances)}")
 
     elapsed_time = time() - start_time
     print("Final Elapsed: %.3f sec" % elapsed_time)
