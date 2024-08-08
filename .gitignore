@@ -160,3 +160,8 @@ cython_debug/
 
 # artefacts folder
 artefacts/
+EDA/
+*.csv
+mlruns/
+experiments/qualification_result/
+figures/qualification/
