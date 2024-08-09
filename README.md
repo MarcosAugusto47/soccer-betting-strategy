@@ -20,4 +20,11 @@ python main_baseline_kreiner.py \
     --aggregator Datetime \
     --save_experiment
 
+python main_callback_parallel_variable_stake.py \
+    --date_start 2019-01-01 \
+    --date_end 2020-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --save_experiment
+
 * If we consider more bookmakers, the betting strategy will have a higher probability of success, because in that case there more opportunities to select. But, to consider too many bookmakers can bring such a high complexity if the system is implemented in a production pipeline that puts real money on the line.
