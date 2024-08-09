@@ -276,12 +276,6 @@ if __name__ == "__main__":
         help="number of iterations to run the optimization task",
     )
     parser.add_argument(
-        "--bookmakers",
-        type=int,
-        default=None,
-        help="threshold of minimum number of games to enter the optimization task"
-    )
-    parser.add_argument(
         "--do_baseline",
         action="store_true",
         help="flag to apply baseline logic or not, not specifying the argument return the opposite of the action",
@@ -296,11 +290,6 @@ if __name__ == "__main__":
         "--save_experiment",
         action="store_true",
         help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action",
-    )
-    parser.add_argument(
-        "--save_experiment",
-        action='store_true',
-        help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action"
     )
     args = parser.parse_args()
     print(args)
