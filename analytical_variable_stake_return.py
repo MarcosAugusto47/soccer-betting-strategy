@@ -5,7 +5,6 @@ from dependencies.utils import softmax
 from scipy.optimize import minimize
 from itertools import chain
 from typing import Dict
-import torch.nn.functional as F
 
 #logger = logging.getLogger(__name__)
 
@@ -106,7 +105,7 @@ def compute_objective_via_analytical(
 
     gamma = x[0]
     x = x[1:]
-    x = softmax(x)
+    #x = softmax(x)
 
     my_expectation = expectation(allocation=x,
                                  public_odd=public_odd,
@@ -130,7 +129,5 @@ def compute_objective_via_analytical(
 
     #output = (1 - gamma + gamma*my_expectation) / (gamma*my_sigma)
     output = (1 - gamma + gamma*my_expectation) / (my_sigma)
-    #output = (1 - gamma + gamma*my_expectation) / (my_sigma*gamma**(1/20))
-    #output = gamma**10 * (gamma*my_expectation) / (gamma*my_sigma)
 
     return -output

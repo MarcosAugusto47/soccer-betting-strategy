@@ -21,7 +21,7 @@ python main_baseline_kreiner.py \
     --save_experiment
 
 python main_callback_parallel_variable_stake.py \
-    --date_start 2019-01-01 \
+    --date_start 2019-06-01 \
     --date_end 2020-01-01 \
     --aggregator Datetime \
     --min_games 1 \
