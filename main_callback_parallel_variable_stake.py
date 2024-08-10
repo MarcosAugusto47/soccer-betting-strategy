@@ -125,7 +125,6 @@ def process_group(
                 odds_dt["solution"] = 1
             
             logger.info(f"Gamma: {gamma}")
-            logger.info(f"Solution: {solution}")
 
             save_df_as_parquet(odds_dt, str(date))
 
@@ -149,12 +148,13 @@ def process_group(
                         financial_return,
                         len(game_data),
                         odds_dt.n_favorable_bets.values[0],
+                        gamma,
                         time_limit_flag,
                         is_valid_solution,
                         iteration_date,
                     ]
                 )
-            
+
 
             if financial_return_aggregated < 1:
                 logger.warning(f"Negative return for the day {iteration_date}")
