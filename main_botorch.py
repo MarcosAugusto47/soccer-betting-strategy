@@ -80,7 +80,6 @@ def process_group(
         odds_dt = pd.concat(odds_dict.values())
 
         if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
-
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
             # logger.info(f"Date: {iteration_date}")
 
@@ -109,11 +108,10 @@ def process_group(
 
                 elif args.optimizer == "BoTorchOptimizerVariableStake":
                     optimizer_instance = BoTorchOptimizerVariableStake(**params)
-
                     solution = optimizer_instance.run_optimization()
                     gamma = solution[0]
                     solution = solution[1:]
-                
+
                 gamma = 0.1 if gamma is None else gamma
 
                 logger.info("Finalization of minimization task...")
