@@ -14,7 +14,7 @@ from loguru import logger
 from sparsemax import Sparsemax
 
 from artifacts import (
-    build_plot_df_wrapper_variable_stake,
+    build_plot_df_wrapper,
     save_csv_artifact,
     save_plot_strategy,
 )
@@ -221,7 +221,7 @@ def run_strategy(args):
             artefacts_folder = f"artefacts/{timestamp}"
             os.makedirs(artefacts_folder)
             save_csv_artifact(artefacts_folder, "result", df_flat)
-            df_plot = build_plot_df_wrapper_variable_stake(
+            df_plot = build_plot_df_wrapper(
                 artefacts_folder, args.aggregator, args.do_baseline
             )
             save_csv_artifact(artefacts_folder, "result_plot", df_plot)
