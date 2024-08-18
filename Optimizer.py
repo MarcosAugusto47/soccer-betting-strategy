@@ -51,7 +51,7 @@ class Optimizer:
                        tol=0.01,
                        method='Powell',
                        #constraints=constraint,
-                       #options={"disp": True},
+                       options={"disp": True},
         )
         
         return res.x, self.flag
