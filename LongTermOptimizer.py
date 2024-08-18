@@ -97,9 +97,9 @@ def minimize_simulation(df_prob, df_bet, num_simulations):
         constraints=con1,
         bounds=bnds,
         method="Powell",
-        tol=0.1,
+        tol=0.01,
         options={
-            "maxiter": 5,
+#            "maxiter": 5,
             "disp": True,
             #"return_all": True
         },
