@@ -24,11 +24,11 @@ class BaseBoTorchOptimizer:
         self.games_ids = games_ids
         self.df_probs_dict = df_probs_dict
         self.n = len(public_odd)
-
+    
     def expectation(self, allocation, public_odd, real_probabilities):
         result = torch.sum(allocation * public_odd * real_probabilities, dim=1)
         return result
-
+    
     def second_moment(
             self,
             allocation: torch.Tensor,
@@ -74,10 +74,10 @@ class BaseBoTorchOptimizer:
         term2 = torch.sum(term2_list, dim=1)
         
         return term1 + term2
-
+     
     def variance(self, second_moment, expectation):
         return second_moment - (expectation) ** 2
-
+    
     def compute_objective_via_analytical(
         self,
         x: np.ndarray,
@@ -88,7 +88,7 @@ class BaseBoTorchOptimizer:
         df_probs_dict: Dict[str, pd.DataFrame],
     ) -> np.float64:
         raise NotImplementedError("This method should be implemented by subclasses.")
-
+    
     def objective_function(self, X):
         output = self.compute_objective_via_analytical(
             x=X,
@@ -99,7 +99,7 @@ class BaseBoTorchOptimizer:
             df_probs_dict=self.df_probs_dict
         )
         return output.unsqueeze(1)        
-    
+
     def run_optimization(self):
         raise NotImplementedError("This method should be implemented by subclasses.")
 
@@ -132,7 +132,7 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
         output = my_expectation / my_sigma
 
         return output
-
+    
     def run_optimization(self):
         train_X = draw_sobol_samples(
             bounds=torch.tensor([[0.001] * self.n, [0.1] * self.n]),
@@ -150,7 +150,7 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
 
             gp_model = SingleTaskGP(train_X, train_Y_standardized, input_transform=Normalize(d=self.n))
             mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-            fit_gpytorch_model(mll)
+            fit_gpytorch_model(mll) # this line takes the most time to run by far
             
             acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
             
@@ -158,8 +158,8 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
                 acq_function=acq_func,
                 bounds=torch.tensor([[0.] * self.n, [10.] * self.n]),
                 q=1,
-                num_restarts=10,
-                raw_samples=512,
+                num_restarts=3, # reduce this to run faster
+                raw_samples=512, # reduce this to run faster
             )
             
             new_y = self.objective_function(candidate)
@@ -247,3 +247,10 @@ class BoTorchOptimizerVariableStake(BaseBoTorchOptimizer):
                 best_candidate = candidate
 
         return best_candidate.numpy().ravel()
+
+# class BoTorchOptimizerLongTerm(BaseBoTorchOptimizer):
+
+#     def __init__(self, n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict):
+#         super().__init__(n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict)
+    
+#     def compute_objective_via_simulation()
