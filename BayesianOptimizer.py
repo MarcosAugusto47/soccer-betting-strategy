@@ -233,7 +233,7 @@ class BoTorchOptimizerVariableStake(BaseBoTorchOptimizer):
                 acq_function=acq_func,
                 bounds=torch.tensor([[0.01] + [0.] * self.n, [0.5] + [10.] * self.n]),
                 q=1,
-                num_restarts=10,
+                num_restarts=3,
                 raw_samples=512,
             )
             

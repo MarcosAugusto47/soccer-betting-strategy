@@ -13,14 +13,12 @@ from joblib import Parallel, delayed
 from loguru import logger
 from sparsemax import Sparsemax
 
+from analytical_return import compute_objective_via_analytical
 from artifacts import (
     build_plot_df_wrapper,
     save_csv_artifact,
     save_plot_strategy,
 )
-from analytical_return import compute_objective_via_analytical
-from LongTermOptimizer import estimate_long_term_return
-from Optimizer import Optimizer
 from BayesianOptimizer import BoTorchOptimizer, BoTorchOptimizerVariableStake
 from data import (
     apply_final_treatment,
@@ -32,6 +30,8 @@ from dependencies.config import load_config
 from dependencies.utils import get_bet_return, save_df_as_parquet, softmax
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
+from LongTermOptimizer import estimate_long_term_return
+from Optimizer import Optimizer
 
 config = load_config("config/config.yml")
 
@@ -108,9 +108,15 @@ def process_group(
                     solution, value, _ = Optimizer().run_optimization(
                         fun=compute_objective_via_analytical,
                         x0=np.zeros(len(odds_favorable)),
-                        args=(odds_favorable, real_prob_favorable, event_favorable, games_ids, df_probs_dict),
+                        args=(
+                            odds_favorable,
+                            real_prob_favorable,
+                            event_favorable,
+                            games_ids,
+                            df_probs_dict,
+                        ),
                     )
-                
+
                 elif args.optimizer == "LongTermOptimizer":
                     solution, value, _ = Optimizer().run_optimization(
                         fun=estimate_long_term_return,
@@ -148,14 +154,13 @@ def process_group(
             else:
                 odds_dt["solution"] = 1
 
-
             save_df_as_parquet(odds_dt, str(date))
 
             track_record = []
 
             financial_return_aggregated = 0
 
-            logger.info("-"*50)
+            logger.info("-" * 50)
             logger.info(f"Day {iteration_date}")
             logger.info(f"Gamma: {np.round(gamma, 3)}")
             for game_id, game_data in odds_dt.groupby("GameId", sort=False):
@@ -165,7 +170,7 @@ def process_group(
                 )
                 financial_return_aggregated += financial_return
                 logger.info(
-                   f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}"
+                    f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}"
                 )
 
                 track_record.append(
@@ -187,8 +192,7 @@ def process_group(
             else:
                 logger.info(f"Positive return for the day {iteration_date}")
 
-            logger.info("-"*50)
-
+            logger.info("-" * 50)
 
             return track_record
 
