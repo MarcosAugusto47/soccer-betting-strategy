@@ -6,6 +6,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
+
 def get_index_to_scenario_for_betmap():
     """
     Get a dictionary with a index as key and a scenario as value, for 
@@ -25,6 +26,9 @@ def get_index_to_scenario_for_betmap():
     return index_to_scenario
 
 
+INDEX_TO_SCENARIO_BET_MAP = get_index_to_scenario_for_betmap()
+
+
 def find_positions(input_list, target_element) -> list:
     """Get target element indexes of given input list."""
     # Using a list comprehension to find positions
@@ -40,9 +44,7 @@ def get_values_by_keys(dictionary, keys_to_lookup) -> list:
 
 def get_scenarios(x: list)-> list:
     """Get list of 7x7 soccer scenarios by given list of dummies"""
-    
-    INDEX_TO_SCENARIO_BET_MAP = get_index_to_scenario_for_betmap()
-    
+        
     positions = find_positions(x, target_element=1)
     scenarios = get_values_by_keys(INDEX_TO_SCENARIO_BET_MAP, positions)
 
@@ -55,12 +57,61 @@ def get_bet_return(df: pd.DataFrame, allocation_array: list, scenario: str) -> f
     # Check if scenario is inside the BetMap
     df['flag'] = df['BetMap'].apply(get_scenarios).apply(check_scenario)
     
-    logger.info(f"Bets won:\n{df[df.flag][['Market', 'Bet', 'Scenario', 'Odd', 'flag']]}")
+    # logger.info(f"Bets won:\n{df[df.flag][['Market', 'Bet', 'Scenario', 'Odd', 'flag']]}")
     
-    logger.info(f"Allocation won:\n{pd.Series(allocation_array)[df.flag.to_list()]}")
+    # logger.info(f"Allocation won:\n{pd.Series(allocation_array)[df.flag.to_list()]}")
     
     # Calculate the financial return
     return sum(df['Odd'] * df['flag'] * allocation_array)
+
+
+def get_scenarios_vectorized_optimized(betmap_matrix: np.ndarray) -> np.ndarray:
+    """
+    Optimized version to retrieve the scenarios from the BetMap matrix.
+    
+    betmap_matrix: NumPy 2D array where each row corresponds to a game, 
+                   and each column corresponds to a specific score scenario.
+    
+    Returns a 2D boolean array where each row indicates which scenarios are active.
+    """
+    # Generate the scenario strings (for a 7x7 grid)
+    scenario_strings = np.array([f"{i} : {j}" for i in range(7) for j in range(7)])
+    
+    # Directly create a 2D boolean array where each element is True if the scenario is active
+    active_scenarios = betmap_matrix == 1
+    
+    return active_scenarios, scenario_strings
+
+
+def get_bet_return_vectorized_optimized(df: pd.DataFrame, allocation_array: list, scenario: str) -> float:
+    """
+    Get financial return of the bet by given allocation and scenario in a fully optimized vectorized manner.
+    
+    df: Pandas DataFrame that contains BetMap, Odd, etc.
+    allocation_array: List of allocations corresponding to each bet.
+    scenario: The specific scenario we are interested in checking.
+    """
+    # Convert BetMap to a NumPy array
+    betmap_matrix = np.vstack(df['BetMap'].values)
+
+    # Get a 2D boolean array for active scenarios and the scenario strings
+    active_scenarios, scenario_strings = get_scenarios_vectorized_optimized(betmap_matrix)
+    
+    # Find the index of the target scenario in the scenario_strings array
+    scenario_index = np.where(scenario_strings == scenario)[0][0]
+    
+    # Vectorized check: Get the flag for each row where the scenario is active
+    scenario_flags = active_scenarios[:, scenario_index]
+    
+    # Convert the allocation array to a NumPy array
+    allocation_array = np.array(allocation_array)
+    
+    # Calculate the financial return using vectorized operations
+    # financial_return = np.sum(df['Odd'].values * scenario_flags * allocation_array)
+    financial_return = np.dot(df['Odd'].values * scenario_flags, allocation_array)
+
+    
+    return financial_return
 
 
 def softmax(x):

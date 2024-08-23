@@ -18,6 +18,9 @@ from artifacts import (
     save_csv_artifact,
     save_plot_strategy,
 )
+from analytical_return import compute_objective_via_analytical
+from LongTermOptimizer import estimate_long_term_return
+from Optimizer import Optimizer
 from BayesianOptimizer import BoTorchOptimizer, BoTorchOptimizerVariableStake
 from data import (
     apply_final_treatment,
@@ -64,8 +67,7 @@ def process_group(
 
     if len(games_ids) > args.min_games:
         for game_id in games_ids:
-            df = GameProbs(game_id).build_dataframe()
-
+            df = GameProbs(match_id=game_id, data_path=args.data_path).build_dataframe()
             odds_sample = group_data[(group_data.GameId == game_id)]
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
             if not args.do_baseline:
@@ -102,7 +104,21 @@ def process_group(
                     "df_probs_dict": df_probs_dict,
                 }
 
-                if args.optimizer == "BoTorchOptimizer":
+                if args.optimizer == "Optimizer":
+                    solution, value, _ = Optimizer().run_optimization(
+                        fun=compute_objective_via_analytical,
+                        x0=np.zeros(len(odds_favorable)),
+                        args=(odds_favorable, real_prob_favorable, event_favorable, games_ids, df_probs_dict),
+                    )
+                
+                elif args.optimizer == "LongTermOptimizer":
+                    solution, value, _ = Optimizer().run_optimization(
+                        fun=estimate_long_term_return,
+                        x0=np.zeros(len(odds_favorable)),
+                        args=(df_probs_dict, odds_dt, 10),
+                    )
+
+                elif args.optimizer == "BoTorchOptimizer":
                     optimizer_instance = BoTorchOptimizer(**params)
                     solution = optimizer_instance.run_optimization()
 
@@ -112,10 +128,11 @@ def process_group(
                     gamma = solution[0]
                     solution = solution[1:]
 
+                assert len(solution) == len(odds_favorable)
+
                 gamma = 0.1 if gamma is None else gamma
 
                 logger.info("Finalization of minimization task...")
-                logger.info(f"Gamma: {gamma}")
 
                 if any(math.isnan(x) for x in solution):
                     is_valid_solution = False
@@ -131,21 +148,25 @@ def process_group(
             else:
                 odds_dt["solution"] = 1
 
+
             save_df_as_parquet(odds_dt, str(date))
 
             track_record = []
 
             financial_return_aggregated = 0
 
+            logger.info("-"*50)
+            logger.info(f"Day {iteration_date}")
+            logger.info(f"Gamma: {np.round(gamma, 3)}")
             for game_id, game_data in odds_dt.groupby("GameId", sort=False):
                 scenario = gameid_to_outcome[game_id]
                 financial_return = get_bet_return(
                     df=game_data, allocation_array=game_data.solution, scenario=scenario
                 )
                 financial_return_aggregated += financial_return
-                # logger.info(
-                #    f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}"
-                # )
+                logger.info(
+                   f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}"
+                )
 
                 track_record.append(
                     [
@@ -166,6 +187,9 @@ def process_group(
             else:
                 logger.info(f"Positive return for the day {iteration_date}")
 
+            logger.info("-"*50)
+
+
             return track_record
 
 
@@ -173,6 +197,7 @@ def run_strategy(args):
     start_time = time()
 
     logger.info("Starting the strategy...")
+    logger.info(f"Data path: {args.data_path}")
     logger.info(f"Start date: {args.date_start}")
     logger.info(f"End date: {args.date_end}")
     logger.info(f"Aggregator: {args.aggregator}")
@@ -201,6 +226,7 @@ def run_strategy(args):
     # Start an MLflow experiment
     with mlflow.start_run():
         # Log parameters (e.g., settings of the optimizer)
+        mlflow.log_param("data_path", args.data_path)
         mlflow.log_param("aggregator", args.aggregator)
         mlflow.log_param("min_games", args.min_games)
         mlflow.log_param("bookmakers", args.bookmakers)
@@ -237,6 +263,12 @@ def run_strategy(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--data_path",
+        type=str,
+        default="data/meanSurface-new.json",
+        help="path to the data, it could be the file with estimates of the real probabilities using the mean surface or median surface",
+    )
     parser.add_argument(
         "--date_start",
         type=str,
@@ -308,5 +340,5 @@ if __name__ == "__main__":
         help="flag to save the experiment artefacts, not specifying the argument return the opposite of the action",
     )
     args = parser.parse_args()
-    print(args)
+    logger.info(args)
     run_strategy(args)
