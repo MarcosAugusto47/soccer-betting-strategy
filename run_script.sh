@@ -2,7 +2,7 @@
 
 # Define arrays for each parameter
 min_games_values=("0" "1")
-bets_per_game_values=("2" "4" "8")
+bets_per_game_values=("2" "5" "10")
 weight_values=("0.2" "0.5" "0.8")
 probability_mapping_values=("softmax" "sparsemax")
 
