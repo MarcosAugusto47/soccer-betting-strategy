@@ -3,8 +3,8 @@ import pandas as pd
 from data import load_map
 
 class GameProbs:
-    def __init__(self, match_id):
-        json_dict = load_map("data/meanSurface-new.json")
+    def __init__(self, match_id, data_path="data/meanSurface-new.json"):
+        json_dict = load_map(data_path)
         self.parsed_data = json_dict[match_id]
    
     def build_dataframe(self, nrow=7, ncol=7):
