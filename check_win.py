@@ -48,14 +48,13 @@ def process_group(group: Tuple[str, pd.DataFrame]):
     if len(games_ids) > 1:
 
         for game_id in games_ids:
+            df = GameProbs(match_id=game_id, data_path="data/meanSurface-new.json").build_dataframe()
 
             odds_sample = group_data[(group_data.GameId==game_id)]
 
-            df = GameProbs(game_id).build_dataframe()
-
             odds_sample = apply_final_treatment(df_odds=odds_sample, df_real_prob=df)
 
-            odds_sample = filter_by_linear_combination(odds_sample, n=5)
+            odds_sample = filter_by_linear_combination(odds_sample, n=10, weight=0.2)
                        
             #logger.info(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
             #print(f"game_id: {game_id}, odds_sample.shape: {odds_sample.shape}")
