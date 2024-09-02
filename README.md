@@ -87,4 +87,7 @@ python main_optimizer.py \
 - meanSurface-new: dataset that contains the mean surface of the 7x7 grid scores for every game id for 2019-2023
 - medianSurface-new: dataset that contains the median surface of the 7x7 grid scores for every game id for 2019-2023. The use of the median is to reduce the impact of highly skewed probability estimates for the 7x7 grid scores.
 
+## Considerations
+- It seems that a minimum of 100 iterations is necessary for BoTorch optimization to return good results
+
 * If we consider more bookmakers, the betting strategy will have a higher probability of success, because in that case there more opportunities to select. But, to consider too many bookmakers can bring such a high complexity if the system is implemented in a production pipeline that puts real money on the line.
