@@ -19,7 +19,12 @@ from artifacts import (
     save_csv_artifact,
     save_plot_strategy,
 )
-from BayesianOptimizer import BoTorchOptimizer, BoTorchOptimizerVariableStake
+from BayesianOptimizer import (
+    BoTorchOptimizer,
+    BoTorchOptimizerLambda,
+    BoTorchOptimizerLongTerm,
+    BoTorchOptimizerVariableStake,
+)
 from data import (
     apply_final_treatment,
     join_metadata,
@@ -30,7 +35,7 @@ from dependencies.config import load_config
 from dependencies.utils import get_bet_return, save_df_as_parquet, softmax
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
-from LongTermOptimizer import estimate_long_term_return
+from mlflow_setup import setup_experiment
 from Optimizer import Optimizer
 
 config = load_config("config/config.yml")
@@ -134,6 +139,17 @@ def process_group(
                     gamma = solution[0]
                     solution = solution[1:]
 
+                elif args.optimizer == "BoTorchOptimizerLambda":
+                    params["lambda_param"] = 0.5
+                    optimizer_instance = BoTorchOptimizerLambda(**params)
+                    solution = optimizer_instance.run_optimization()
+
+                elif args.optimizer == "BoTorchOptimizerLongTerm":
+                    optimizer_instance = BoTorchOptimizerLongTerm(**params)
+                    solution = optimizer_instance.run_optimization(
+                        df_probs_dict, odds_dt, 10
+                    )
+
                 assert len(solution) == len(odds_favorable)
 
                 gamma = 0.1 if gamma is None else gamma
@@ -198,6 +214,10 @@ def process_group(
 
 
 def run_strategy(args):
+    # Set up the experiment
+    data_path = args.data_path.split("/")[-1]
+    setup_experiment(f"{args.optimizer}_{data_path}")
+
     start_time = time()
 
     logger.info("Starting the strategy...")
@@ -209,6 +229,7 @@ def run_strategy(args):
     logger.info(f"Bookmakers: {args.bookmakers}")
     logger.info(f"Number of bets per game: {args.bets_per_game}")
     logger.info(f"Weight: {args.weight}")
+    logger.info(f"Lambda param: {args.lambda_param}")
     logger.info(f"Optimizer: {args.optimizer}")
     logger.info(f"Do baseline: {args.do_baseline}")
     logger.info(f"Number of iterations: {args.n_iterations}")
@@ -236,6 +257,7 @@ def run_strategy(args):
         mlflow.log_param("bookmakers", args.bookmakers)
         mlflow.log_param("bets_per_game", args.bets_per_game)
         mlflow.log_param("weight", args.weight)
+        mlflow.log_param("lambda_param", args.lambda_param)
         mlflow.log_param("optimizer", args.optimizer)
         mlflow.log_param("probability_mapping", args.probability_mapping)
         mlflow.log_param("do_baseline", args.do_baseline)
@@ -308,6 +330,12 @@ if __name__ == "__main__":
         type=float,
         default=0.5,
         help="weight of the linear combination filter",
+    )
+    parser.add_argument(
+        "--lambda_param",
+        type=float,
+        default=None,
+        help="lambda parameter specifically for the broken sharpe ratio",
     )
     parser.add_argument(
         "--optimizer",

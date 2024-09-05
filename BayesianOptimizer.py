@@ -12,7 +12,7 @@ from botorch.acquisition import ExpectedImprovement
 from botorch.utils import standardize, draw_sobol_samples
 
 from botorch.models.transforms.input import Normalize
-
+from LongTermOptimizer import generate_single_long_term_return
 
 class BaseBoTorchOptimizer:
     
@@ -98,7 +98,16 @@ class BaseBoTorchOptimizer:
             games_ids=self.games_ids,
             df_probs_dict=self.df_probs_dict
         )
-        return output.unsqueeze(1)        
+        return output.unsqueeze(1)
+    
+    def objective_function_simulation(self, X, df_prob, df_bet, num_simulations):
+        output = self.compute_objective_via_simulation(
+            x=X,
+            df_prob=df_prob,
+            df_bet=df_bet,
+            num_simulations=num_simulations
+        )
+        return output.unsqueeze(1)
 
     def run_optimization(self):
         raise NotImplementedError("This method should be implemented by subclasses.")
@@ -158,7 +167,7 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
                 acq_function=acq_func,
                 bounds=torch.tensor([[0.] * self.n, [10.] * self.n]),
                 q=1,
-                num_restarts=3, # reduce this to run faster
+                num_restarts=10, # reduce this to run faster
                 raw_samples=512, # reduce this to run faster
             )
             
@@ -233,7 +242,7 @@ class BoTorchOptimizerVariableStake(BaseBoTorchOptimizer):
                 acq_function=acq_func,
                 bounds=torch.tensor([[0.01] + [0.] * self.n, [0.5] + [10.] * self.n]),
                 q=1,
-                num_restarts=3,
+                num_restarts=32,
                 raw_samples=512,
             )
             
@@ -248,9 +257,150 @@ class BoTorchOptimizerVariableStake(BaseBoTorchOptimizer):
 
         return best_candidate.numpy().ravel()
 
-# class BoTorchOptimizerLongTerm(BaseBoTorchOptimizer):
 
-#     def __init__(self, n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict):
-#         super().__init__(n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict)
+class BoTorchOptimizerLambda(BaseBoTorchOptimizer):
     
-#     def compute_objective_via_simulation()
+    def __init__(self, n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict, lambda_param):
+        super().__init__(n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict)
+        self.lambda_param = lambda_param
+
+    def compute_objective_via_analytical(
+        self,
+        x: np.ndarray,
+        public_odd: np.ndarray,
+        real_probabilities: np.ndarray,
+        event: np.ndarray,
+        games_ids: np.ndarray,
+        df_probs_dict: Dict[str, pd.DataFrame],
+    ) -> np.float64:
+        x = F.softmax(x, dim=-1)
+        my_expectation = self.expectation(allocation=x,
+                                          public_odd=public_odd,
+                                          real_probabilities=real_probabilities)
+        my_second_moment = self.second_moment(allocation=x,
+                                              public_odd=public_odd,
+                                              real_probabilities=real_probabilities,
+                                              event=event,
+                                              games_ids=games_ids,
+                                              df_probs_dict=df_probs_dict)
+        my_sigma = np.sqrt(self.variance(my_second_moment, my_expectation))
+        output = my_expectation - self.lambda_param * my_sigma
+
+        return output
+
+    def run_optimization(self):
+        train_X = draw_sobol_samples(
+            bounds=torch.tensor([[0.001] * self.n, [0.1] * self.n]),
+            n=1,
+            q=5,
+            seed=47,
+        ).squeeze(0).double()  # 5 initial points
+        train_Y = self.objective_function(train_X)
+
+        best_value = train_Y.max()
+        best_candidate = train_X[train_Y.argmax()]
+
+        for iteration in range(self.n_iterations):
+            train_Y_standardized = standardize(train_Y)
+
+            gp_model = SingleTaskGP(train_X, train_Y_standardized, input_transform=Normalize(d=self.n))
+            mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
+            fit_gpytorch_model(mll) # this line takes the most time to run by far
+            
+            acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
+            
+            candidate, _ = optimize_acqf(
+                acq_function=acq_func,
+                bounds=torch.tensor([[0.] * self.n, [10.] * self.n]),
+                q=1,
+                num_restarts=10, # reduce this to run faster
+                raw_samples=512, # reduce this to run faster
+            )
+            
+            new_y = self.objective_function(candidate)
+            
+            train_X = torch.cat([train_X, candidate])
+            train_Y = torch.cat([train_Y, new_y])
+
+            if new_y > best_value:
+                best_value = new_y
+                best_candidate = candidate
+
+        return best_candidate.numpy().ravel()
+    
+    
+
+class BoTorchOptimizerLongTerm(BaseBoTorchOptimizer):
+    """ This seems pretty difficult to implement, but I think it's possible. """
+
+    def __init__(self, n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict):
+        super().__init__(n_iterations, public_odd, real_probabilities, event, games_ids, df_probs_dict)
+    
+    def compute_objective_via_simulation(
+            self,
+            x,  # gamma + allocation array
+            df_prob,
+            df_bet,
+            num_simulations,
+    ):
+        gamma = x[:, 0]
+        x = x[:, 1:]
+        x = F.softmax(x, dim=-1)
+        import pdb; pdb.set_trace()
+        observations = [
+            generate_single_long_term_return(df_prob, df_bet, num_simulations, x)
+            for _ in range(100)
+        ]
+        pdb.set_trace()
+        observations = (1-gamma) + gamma * np.array(observations)
+        mean_long_term_return = np.mean(observations)
+        pdb.set_trace()
+
+        # print(f"output: {mean_long_term_return}")
+
+        return mean_long_term_return
+    
+    def run_optimization(self,
+                         df_prob,
+                         df_bet,
+                         num_simulations):
+        train_X = draw_sobol_samples(
+            bounds=torch.tensor([[0.001] * self.n, [0.1] * self.n]),
+            n=1,
+            q=5,
+            seed=47,
+        ).squeeze(0).double()
+        to_prepend = torch.full((train_X.size(0), 1), 0.4, dtype=torch.float64)
+        train_X = torch.cat((to_prepend, train_X), dim=1)
+        train_Y = self.objective_function_simulation(train_X, df_prob, df_bet, num_simulations)
+
+        best_value = train_Y.max()
+        best_candidate = train_X[train_Y.argmax()]
+
+        for iteration in range(self.n_iterations):
+            train_Y_standardized = standardize(train_Y)
+
+            gp_model = SingleTaskGP(train_X, train_Y_standardized, input_transform=Normalize(d=self.n + 1))
+            mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
+            fit_gpytorch_model(mll)
+            
+            acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
+            
+            candidate, _ = optimize_acqf(
+                acq_function=acq_func,
+                bounds=torch.tensor([[0.01] + [0.] * self.n, [0.5] + [10.] * self.n]),
+                q=1,
+                num_restarts=3,
+                raw_samples=512,
+            )
+            
+            new_y = self.objective_function_simulation(candidate)
+            
+            train_X = torch.cat([train_X, candidate])
+            train_Y = torch.cat([train_Y, new_y])
+
+            if new_y > best_value:
+                best_value = new_y
+                best_candidate = candidate
+
+        return best_candidate.numpy().ravel()
