@@ -42,6 +42,20 @@ python main_botorch.py \
     --n_jobs 1 \
     --save_experiment
 
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --bets_per_game 5 \
+    --weight 0.5 \
+    --optimizer BoTorchOptimizerVariableStake \
+    --probability_mapping softmax \
+    --n_iterations 100 \
+    --n_jobs 1 \
+    --save_experiment
+
 
 kernprof -l -v main_botorch.py \
     --date_start 2022-01-01 \
