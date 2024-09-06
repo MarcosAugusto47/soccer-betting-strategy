@@ -35,7 +35,7 @@ python main_optimizer.py \
     --aggregator Datetime \
     --min_games 1 \
     --bets_per_game 5 \
-    --weight 0.5 \
+    --weight 0.1 \
     --optimizer BoTorchOptimizer \
     --probability_mapping softmax \
     --n_iterations 100 \
@@ -88,12 +88,26 @@ python main_optimizer.py \
     --aggregator Datetime \
     --min_games 1 \
     --bets_per_game 5 \
-    --weight 0.5 \
+    --weight 0.2 \
     --optimizer LongTermOptimizer \
     --probability_mapping softmax \
     --n_jobs 10 \
     --save_experiment
 
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --bets_per_game 5 \
+    --weight 0.5 \
+    --lambda_param 1 \
+    --optimizer BoTorchOptimizerLambda \
+    --probability_mapping softmax \
+    --n_iterations 10 \
+    --n_jobs 10 \
+    --save_experiment
 
 ## About the data
 - odds-new-correct: dataset that for 2019-2023
@@ -105,3 +119,5 @@ python main_optimizer.py \
 - It seems that a minimum of 100 iterations is necessary for BoTorch optimization to return good results
 
 * If we consider more bookmakers, the betting strategy will have a higher probability of success, because in that case there more opportunities to select. But, to consider too many bookmakers can bring such a high complexity if the system is implemented in a production pipeline that puts real money on the line.
+
+## About conda environment

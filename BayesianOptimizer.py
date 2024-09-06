@@ -8,7 +8,7 @@ from botorch.models import SingleTaskGP
 from botorch.fit import fit_gpytorch_mll
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.optim import optimize_acqf
-from botorch.acquisition import ExpectedImprovement
+from botorch.acquisition import ExpectedImprovement, LogExpectedImprovement
 from botorch.utils import standardize, draw_sobol_samples
 
 from botorch.models.transforms.input import Normalize
@@ -315,7 +315,7 @@ class BoTorchOptimizerLambda(BaseBoTorchOptimizer):
             mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
             fit_gpytorch_mll(mll) # this line takes the most time to run by far
             
-            acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
+            acq_func = LogExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
             
             candidate, _ = optimize_acqf(
                 acq_function=acq_func,

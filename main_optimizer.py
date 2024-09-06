@@ -141,7 +141,7 @@ def process_group(
                     solution = solution[1:]
 
                 elif args.optimizer == "BoTorchOptimizerLambda":
-                    params["lambda_param"] = 0.5
+                    params["lambda_param"] = args.lambda_param
                     optimizer_instance = BoTorchOptimizerLambda(**params)
                     solution = optimizer_instance.run_optimization()
 
