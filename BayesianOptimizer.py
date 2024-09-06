@@ -5,7 +5,7 @@ from typing import Dict
 import torch
 import torch.nn.functional as F
 from botorch.models import SingleTaskGP
-from botorch.fit import fit_gpytorch_model
+from botorch.fit import fit_gpytorch_mll
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.optim import optimize_acqf
 from botorch.acquisition import ExpectedImprovement
@@ -142,6 +142,14 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
 
         return output
     
+    def initialize_model(self, train_x, train_obj, state_dict=None):
+        train_obj_standardized = standardize(train_obj)
+        model = SingleTaskGP(train_x, train_obj_standardized, input_transform=Normalize(d=self.n))
+        mll = ExactMarginalLogLikelihood(model.likelihood, model)
+        if state_dict is not None:
+            model.load_state_dict(state_dict)
+        return mll, model, train_obj_standardized
+    
     def run_optimization(self):
         train_X = draw_sobol_samples(
             bounds=torch.tensor([[0.001] * self.n, [0.1] * self.n]),
@@ -154,14 +162,13 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
         best_value = train_Y.max()
         best_candidate = train_X[train_Y.argmax()]
 
-        for iteration in range(self.n_iterations):
-            train_Y_standardized = standardize(train_Y)
+        model_state_dict = None
 
-            gp_model = SingleTaskGP(train_X, train_Y_standardized, input_transform=Normalize(d=self.n))
-            mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-            fit_gpytorch_model(mll) # this line takes the most time to run by far
+        for iteration in range(self.n_iterations):
+            mll, model, train_Y_standardized = self.initialize_model(train_X, train_Y, model_state_dict)
+            fit_gpytorch_mll(mll)
             
-            acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
+            acq_func = ExpectedImprovement(model=model, best_f=train_Y_standardized.max(), maximize=True)
             
             candidate, _ = optimize_acqf(
                 acq_function=acq_func,
@@ -170,7 +177,6 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
                 num_restarts=10, # reduce this to run faster
                 raw_samples=512, # reduce this to run faster
             )
-            
             new_y = self.objective_function(candidate)
             
             train_X = torch.cat([train_X, candidate])
@@ -179,6 +185,8 @@ class BoTorchOptimizer(BaseBoTorchOptimizer):
             if new_y > best_value:
                 best_value = new_y
                 best_candidate = candidate
+            
+            model_state_dict = model.state_dict()
 
         return best_candidate.numpy().ravel()
 
@@ -234,7 +242,7 @@ class BoTorchOptimizerVariableStake(BaseBoTorchOptimizer):
 
             gp_model = SingleTaskGP(train_X, train_Y_standardized, input_transform=Normalize(d=self.n + 1))
             mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-            fit_gpytorch_model(mll)
+            fit_gpytorch_mll(mll)
             
             acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
             
@@ -305,7 +313,7 @@ class BoTorchOptimizerLambda(BaseBoTorchOptimizer):
 
             gp_model = SingleTaskGP(train_X, train_Y_standardized, input_transform=Normalize(d=self.n))
             mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-            fit_gpytorch_model(mll) # this line takes the most time to run by far
+            fit_gpytorch_mll(mll) # this line takes the most time to run by far
             
             acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
             
@@ -346,15 +354,12 @@ class BoTorchOptimizerLongTerm(BaseBoTorchOptimizer):
         gamma = x[:, 0]
         x = x[:, 1:]
         x = F.softmax(x, dim=-1)
-        import pdb; pdb.set_trace()
         observations = [
             generate_single_long_term_return(df_prob, df_bet, num_simulations, x)
             for _ in range(100)
         ]
-        pdb.set_trace()
         observations = (1-gamma) + gamma * np.array(observations)
         mean_long_term_return = np.mean(observations)
-        pdb.set_trace()
 
         # print(f"output: {mean_long_term_return}")
 
@@ -382,7 +387,7 @@ class BoTorchOptimizerLongTerm(BaseBoTorchOptimizer):
 
             gp_model = SingleTaskGP(train_X, train_Y_standardized, input_transform=Normalize(d=self.n + 1))
             mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-            fit_gpytorch_model(mll)
+            fit_gpytorch_mll(mll)
             
             acq_func = ExpectedImprovement(model=gp_model, best_f=train_Y_standardized.max(), maximize=True)
             

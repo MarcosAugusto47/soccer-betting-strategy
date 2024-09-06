@@ -14,6 +14,7 @@ from loguru import logger
 from sparsemax import Sparsemax
 
 from analytical_return import compute_objective_via_analytical
+from LongTermOptimizer import estimate_long_term_return
 from artifacts import (
     build_plot_df_wrapper,
     save_csv_artifact,
