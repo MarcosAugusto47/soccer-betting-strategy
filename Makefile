@@ -2,6 +2,8 @@
 PYTHON=python
 SCRIPT=main_optimizer.py
 
+
+
 # Common arguments shared between all runs
 COMMON_ARGS=--data_path data/meanSurface-new.json \
 			--date_start 2019-01-01 \
@@ -41,10 +43,12 @@ run5:
 # A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
 run-all: run1 run2 run3 run4 run5
 
+
+
 # Common arguments shared between all runs
 COMMON_ARGS_LAMBDA=--data_path data/meanSurface-new.json \
-			--date_start 2019-01-01 \
-			--date_end 2022-01-01 \
+			--date_start 2022-01-01 \
+			--date_end 2023-01-01 \
 			--aggregator Datetime \
 			--min_games 1 \
 			--bets_per_game 5 \
@@ -76,6 +80,7 @@ run-lambda4:
 
 # A target to run all combinations, this is like a hyperparameter tuning job to set the lambda parameter with past data
 run-lambda-all: run-lambda1 run-lambda2 run-lambda3 run-lambda4
+
 
 
 # Common arguments shared between all runs
@@ -116,6 +121,7 @@ run-variablestake5:
 
 # A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
 run-variablestake-all: run-variablestake1 run-variablestake2 run-variablestake3 run-variablestake4 run-variablestake5
+
 
 
 # Common arguments shared between all runs

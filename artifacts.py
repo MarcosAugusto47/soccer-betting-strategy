@@ -27,6 +27,23 @@ def process_results(aggregator, do_baseline, track_record):
     return track_record
 
 
+def process_results_kreiner(aggregator, do_baseline, track_record):
+
+    if not do_baseline:
+        count_col = track_record.groupby(aggregator, sort=False).count().reset_index()['GameId']
+        is_valid_solution = track_record.groupby(aggregator, sort=False).any().reset_index()['is_valid_solution']
+        n_favorable_bets = track_record.groupby("Datetime").first().reset_index()['n_favorable_bets']
+        #gamma = track_record.groupby(aggregator, sort=False).first().reset_index()['gamma']
+        track_record = track_record.groupby(aggregator, sort=False)[['return', 'n_bets']].sum().reset_index()
+        track_record['count'] = count_col
+        track_record['is_valid_solution'] = is_valid_solution
+        track_record['n_favorable_bets'] = n_favorable_bets
+        #track_record['gamma'] = gamma
+        track_record = track_record[track_record.is_valid_solution]
+    
+    return track_record
+
+
 def compute_stake_baseline_kreiner(df, budget=100):
     stake = [budget]
 
@@ -84,12 +101,12 @@ def save_plot_strategy(path, df):
 def build_plot_df_wrapper_baseline_kreiner(path, aggregator, do_baseline):
     track_record = pd.read_csv(f"{path}/result.csv")
     track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'time_limit_flag', 'is_valid_solution', 'Datetime']
-    df = process_results(aggregator, do_baseline, track_record)
+    df = process_results_kreiner(aggregator, do_baseline, track_record)
     stake = compute_stake_baseline_kreiner(df)
     return build_plot_df(stake, do_baseline, df)
 
 
-def build_plot_df_wrapper(path, aggregator, do_baseline):
+def build_plot_df_wrapper(path, aggregator, do_baseline) -> pd.DataFrame:
     track_record = pd.read_csv(f"{path}/result.csv")
     track_record.columns = ['GameId', 'return',	'n_bets', 'n_favorable_bets', 'gamma', 'time_limit_flag', 'is_valid_solution', 'Datetime']
     df = process_results(aggregator, do_baseline, track_record)

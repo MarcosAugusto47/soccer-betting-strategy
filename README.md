@@ -83,6 +83,7 @@ python main_optimizer.py \
     --save_experiment
 
 python main_optimizer.py \
+    --data_path data/medianSurface.json \
     --date_start 2023-01-01 \
     --date_end 2024-01-01 \
     --aggregator Datetime \
@@ -101,11 +102,11 @@ python main_optimizer.py \
     --aggregator Datetime \
     --min_games 1 \
     --bets_per_game 5 \
-    --weight 0.5 \
+    --weight 0.2 \
     --lambda_param 1 \
     --optimizer BoTorchOptimizerLambda \
     --probability_mapping softmax \
-    --n_iterations 10 \
+    --n_iterations 100 \
     --n_jobs 10 \
     --save_experiment
 
