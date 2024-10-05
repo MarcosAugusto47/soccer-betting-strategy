@@ -14,7 +14,6 @@ from loguru import logger
 from sparsemax import Sparsemax
 
 from analytical_return import compute_objective_via_analytical
-from LongTermOptimizer import estimate_long_term_return
 from artifacts import (
     build_plot_df_wrapper,
     save_csv_artifact,
@@ -36,7 +35,9 @@ from dependencies.config import load_config
 from dependencies.utils import get_bet_return, save_df_as_parquet, softmax
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
+from LongTermOptimizer import estimate_long_term_return, estimate_long_term_return_prob
 from mlflow_setup import setup_experiment
+from MOBODecomposedSharpeRatio import MOBO
 from Optimizer import Optimizer
 
 config = load_config("config/config.yml")
@@ -71,7 +72,7 @@ def process_group(
     # Initialize dict to store 7x7 matrices/dataframes of real probabilities
     df_probs_dict = {}
 
-    if len(games_ids) > args.min_games:
+    if len(games_ids) > args.min_games and len(games_ids) <= args.max_games:
         for game_id in games_ids:
             df = GameProbs(match_id=game_id, data_path=args.data_path).build_dataframe()
             odds_sample = group_data[(group_data.GameId == game_id)]
@@ -86,6 +87,13 @@ def process_group(
             df_probs_dict[game_id] = df
 
         odds_dt = pd.concat(odds_dict.values())
+
+        # import pdb; pdb.set_trace()
+
+        if args.max_bets:
+            odds_dt = odds_dt.sort_values("score", ascending=False).head(args.max_bets)
+
+        # pdb.set_trace()
 
         if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
@@ -130,6 +138,13 @@ def process_group(
                         args=(df_probs_dict, odds_dt, 10),
                     )
 
+                elif args.optimizer == "LongTermOptimizerProb":
+                    solution, value, _ = Optimizer().run_optimization(
+                        fun=estimate_long_term_return_prob,
+                        x0=np.zeros(len(odds_favorable)),
+                        args=(df_probs_dict, odds_dt, 10),
+                    )
+
                 elif args.optimizer == "BoTorchOptimizer":
                     optimizer_instance = BoTorchOptimizer(**params)
                     solution = optimizer_instance.run_optimization()
@@ -151,9 +166,15 @@ def process_group(
                         df_probs_dict, odds_dt, 10
                     )
 
+                elif args.optimizer == "MOBO":
+                    optimizer_instance = MOBO(**params)
+                    _, _, pareto_solution = optimizer_instance.run_optimization()
+                    solution = pareto_solution[-1]
+
                 assert len(solution) == len(odds_favorable)
 
-                gamma = 0.1 if gamma is None else gamma
+                # here, we set gamma to 0.16 because it is the value that led to the highest return after experimentation
+                gamma = 0.16 if gamma is None else gamma
 
                 logger.info("Finalization of minimization task...")
 
@@ -227,6 +248,8 @@ def run_strategy(args):
     logger.info(f"End date: {args.date_end}")
     logger.info(f"Aggregator: {args.aggregator}")
     logger.info(f"Minimum number of games: {args.min_games}")
+    logger.info(f"Maximal number of games: {args.max_games}")
+    logger.info(f"Maximal number of bets: {args.max_bets}")
     logger.info(f"Bookmakers: {args.bookmakers}")
     logger.info(f"Number of bets per game: {args.bets_per_game}")
     logger.info(f"Weight: {args.weight}")
@@ -255,6 +278,8 @@ def run_strategy(args):
         mlflow.log_param("data_path", args.data_path)
         mlflow.log_param("aggregator", args.aggregator)
         mlflow.log_param("min_games", args.min_games)
+        mlflow.log_param("max_games", args.max_games)
+        mlflow.log_param("max_bets", args.max_bets)
         mlflow.log_param("bookmakers", args.bookmakers)
         mlflow.log_param("bets_per_game", args.bets_per_game)
         mlflow.log_param("weight", args.weight)
@@ -315,13 +340,28 @@ if __name__ == "__main__":
         help="A list of strings",
     )
     parser.add_argument(
-        "--aggregator", type=str, help="aggregate by GameId or by Datetime"
+        "--aggregator",
+        type=str,
+        help="aggregate by GameId or by Datetime",
+        default="Datetime",
     )
     parser.add_argument(
         "--min_games",
         type=int,
         default=1,
         help="threshold of minimum number of games to enter the optimization task",
+    )
+    parser.add_argument(
+        "--max_games",
+        type=int,
+        default=999,
+        help="threshold of maximum number of games to enter the optimization task",
+    )
+    parser.add_argument(
+        "--max_bets",
+        type=int,
+        default=None,
+        help="maximum number of bets to consider",
     )
     parser.add_argument(
         "--bets_per_game", type=int, default=5, help="number of bets per game"
