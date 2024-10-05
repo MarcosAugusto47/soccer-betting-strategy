@@ -6,7 +6,7 @@ from itertools import chain
 from typing import Dict
 from botorch.models import SingleTaskGP
 from botorch.models.transforms import Standardize
-from botorch.fit import fit_gpytorch_model
+from botorch.fit import fit_gpytorch_mll
 from botorch.optim import optimize_acqf
 from botorch.acquisition.multi_objective import ExpectedHypervolumeImprovement
 from botorch.utils.multi_objective.box_decompositions.non_dominated import (
@@ -229,7 +229,7 @@ class MOBO:
             input_transform=Normalize(d=self.n),
         )
         mll = ExactMarginalLogLikelihood(model.likelihood, model)
-        fit_gpytorch_model(mll)
+        fit_gpytorch_mll(mll)
         return model
 
     # Sequential optimization
@@ -250,7 +250,7 @@ class MOBO:
 
     def run_optimization(self):
         # Initialize data
-        X, Y = self.generate_initial_data(n=1)
+        X, Y = self.generate_initial_data(n=10)
 
         # Main loop for Bayesian optimization
         for i in range(self.n_iterations):  # Number of iterations
@@ -297,7 +297,7 @@ class MOBO:
 #     # Assuming Y is standardized
 #     model = SingleTaskGP(X, Y, outcome_transform=Standardize(m=Y.shape[-1]), input_transform=Normalize(d=2))
 #     mll = ExactMarginalLogLikelihood(model.likelihood, model)
-#     fit_gpytorch_model(mll)
+#     fit_gpytorch_mll(mll)
 #     return model
 
 # Sequential optimization
