@@ -162,3 +162,43 @@ run-longterm5:
 
 # A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
 run-longterm-all: run-longterm1 run-longterm2 run-longterm3 run-longterm4 run-longterm5
+
+
+# Common arguments shared between all runs
+COMMON_ARGS_MOBO=--data_path data/meanSurface-new.json \
+			--date_start 2019-01-01 \
+			--date_end 2023-01-01 \
+			--aggregator Datetime \
+			--min_games 1 \
+			--bets_per_game 5 \
+			--optimizer MOBO \
+			--probability_mapping softmax \
+			--n_iterations 10 \
+			--n_jobs 10 \
+			--save_experiment
+
+# Run-specific arguments
+ARGS_MOBO1=--weight 0.1
+ARGS_MOBO2=--weight 0.2
+ARGS_MOBO3=--weight 0.5
+ARGS_MOBO4=--weight 0.8
+ARGS_MOBO5=--weight 0.9
+
+# Targets to run the script with different combinations
+run-mobo1:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS) $(ARGS1)
+
+run-mobo2:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS) $(ARGS2)
+
+run-mobo3:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS) $(ARGS3)
+
+run-mobo4:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS) $(ARGS4)
+
+run-mobo5:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS) $(ARGS5)
+x
+# A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
+run-mobo-all: run-mobo1 run-mobo2 run-mobo3 run-mobo4 run-mobo5
