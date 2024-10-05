@@ -4,9 +4,11 @@ This repository forms the core of my master's thesis, where I'll be focusing on 
 
 In addition to data-driven modeling, I'll also emphasize risk management. Advanced numerical optimization methods will be used to optimize betting portfolios, considering factors like bankroll management and risk tolerance. The ultimate goal of this project is to provide a well-rounded approach to soccer betting that combines data science, statistical insights, and numerical techniques to make more informed and potentially profitable decisions.
 
+
 python main_baseline_kreiner.py \
     --aggregator Datetime \
     --save_experiment
+
 
 python main_callback_parallel_variable_stake.py \
     --date_start 2019-06-01 \
@@ -15,7 +17,10 @@ python main_callback_parallel_variable_stake.py \
     --min_games 1 \
     --save_experiment
 
-python main_botorch.py \
+
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
     --date_start 2023-01-01 \
     --date_end 2024-01-01 \
     --aggregator Datetime \
@@ -28,9 +33,10 @@ python main_botorch.py \
     --n_jobs 1 \
     --save_experiment
 
+
 python main_optimizer.py \
     --data_path data/meanSurface-new.json \
-    --date_start 2023-01-01 \
+    --date_start 2023-08-12 \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
@@ -39,8 +45,9 @@ python main_optimizer.py \
     --optimizer BoTorchOptimizer \
     --probability_mapping softmax \
     --n_iterations 100 \
-    --n_jobs 10 \
+    --n_jobs 1 \
     --save_experiment
+
 
 python main_optimizer.py \
     --data_path data/meanSurface-new.json \
@@ -53,6 +60,39 @@ python main_optimizer.py \
     --optimizer BoTorchOptimizerVariableStake \
     --probability_mapping softmax \
     --n_iterations 100 \
+    --n_jobs 10 \
+    --save_experiment
+
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --max_games 3 \
+    --max_bets 7 \
+    --bets_per_game 5 \
+    --weight 0.1 \
+    --optimizer MOBO \
+    --probability_mapping softmax \
+    --n_iterations 70 \
+    --n_jobs 1 \
+    --save_experiment
+
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --max_bets 15 \
+    --bets_per_game 5 \
+    --weight 0.1 \
+    --optimizer MOBO \
+    --probability_mapping softmax \
+    --n_iterations 70 \
     --n_jobs 10 \
     --save_experiment
 
@@ -70,6 +110,7 @@ kernprof -l -v main_botorch.py \
     --n_jobs 1 \
     --save_experiment
 
+
 python main_optimizer.py \
     --date_start 2022-01-01 \
     --date_end 2023-01-01 \
@@ -81,6 +122,7 @@ python main_optimizer.py \
     --probability_mapping softmax \
     --n_jobs 1 \
     --save_experiment
+
 
 python main_optimizer.py \
     --data_path data/medianSurface.json \
@@ -95,6 +137,7 @@ python main_optimizer.py \
     --n_jobs 10 \
     --save_experiment
 
+
 python main_optimizer.py \
     --data_path data/meanSurface-new.json \
     --date_start 2023-01-01 \
@@ -103,12 +146,28 @@ python main_optimizer.py \
     --min_games 1 \
     --bets_per_game 5 \
     --weight 0.2 \
+    --optimizer LongTermOptimizerProb \
+    --probability_mapping softmax \
+    --n_jobs 10 \
+    --save_experiment
+
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --max_games 3 \
+    --bets_per_game 5 \
+    --weight 0.2 \
     --lambda_param 1 \
     --optimizer BoTorchOptimizerLambda \
     --probability_mapping softmax \
     --n_iterations 100 \
     --n_jobs 10 \
     --save_experiment
+
 
 ## About the data
 - odds-new-correct: dataset that for 2019-2023
@@ -122,3 +181,9 @@ python main_optimizer.py \
 * If we consider more bookmakers, the betting strategy will have a higher probability of success, because in that case there more opportunities to select. But, to consider too many bookmakers can bring such a high complexity if the system is implemented in a production pipeline that puts real money on the line.
 
 ## About conda environment
+- The conda environment is stored in the environment.yml file. To create the environment, run the following command:
+
+```bash
+conda env create -f environment.yml
+```
+I have created multiple environments along the way, and I have provided the one that I think is the most up-to-date and enable better performance, in a general sense. (soccer_betting_strategy_improved_v3_env)
