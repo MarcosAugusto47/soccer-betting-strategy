@@ -39,3 +39,24 @@ def estimate_long_term_return(
     # print(f"output: {mean_long_term_return}")
 
     return -mean_long_term_return
+
+
+def estimate_long_term_return_prob(
+    x,  # allocation array
+    df_prob,
+    df_bet,
+    num_simulations,
+):
+    
+    x = softmax(x)
+
+    observations = [
+        generate_single_long_term_return(df_prob, df_bet, num_simulations, x)
+        for _ in range(100)
+    ]
+
+    probability_win = np.sum(np.array(observations) > 1) / len(observations)
+
+    # print(f"output: {mean_long_term_return}")
+
+    return -probability_win
