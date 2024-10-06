@@ -165,5 +165,6 @@ EDA/
 mlruns/
 experiments/qualification_result/
 figures/qualification/
+figures/post_qualification/
 obs.txt
 *.lprof
