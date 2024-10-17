@@ -21,7 +21,7 @@ def generate_single_long_term_return(
     return long_term_return
 
 
-def estimate_long_term_return(
+def estimate_long_term_return_mean(
     x,  # allocation array
     df_prob,
     df_bet,
@@ -36,9 +36,27 @@ def estimate_long_term_return(
     ]
     mean_long_term_return = np.mean(observations)
 
-    # print(f"output: {mean_long_term_return}")
-
     return -mean_long_term_return
+
+
+def estimate_long_term_return_sharpe_ratio(
+    x,  # allocation array
+    df_prob,
+    df_bet,
+    num_simulations,
+):
+    
+    x = softmax(x)
+
+    observations = [
+        generate_single_long_term_return(df_prob, df_bet, num_simulations, x)
+        for _ in range(100)
+    ]
+    mean_long_term_return = np.mean(observations)
+
+    sigma = np.std(observations)
+
+    return -mean_long_term_return / sigma
 
 
 def estimate_long_term_return_prob(
@@ -56,7 +74,5 @@ def estimate_long_term_return_prob(
     ]
 
     probability_win = np.sum(np.array(observations) > 1) / len(observations)
-
-    # print(f"output: {mean_long_term_return}")
 
     return -probability_win

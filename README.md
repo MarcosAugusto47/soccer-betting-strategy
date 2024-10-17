@@ -10,14 +10,13 @@ python main_baseline_kreiner.py \
     --save_experiment
 
 
-python main_callback_parallel_variable_stake.py \
-    --date_start 2019-06-01 \
-    --date_end 2020-01-01 \
-    --aggregator Datetime \
-    --min_games 1 \
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator GameId \
+    --do_baseline \
     --save_experiment
-
-
 
 python main_optimizer.py \
     --data_path data/meanSurface-new.json \
@@ -25,39 +24,10 @@ python main_optimizer.py \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
+    --max_bets 15 \
     --bets_per_game 5 \
     --weight 0.5 \
     --optimizer BoTorchOptimizer \
-    --probability_mapping softmax \
-    --n_iterations 5 \
-    --n_jobs 1 \
-    --save_experiment
-
-
-python main_optimizer.py \
-    --data_path data/meanSurface-new.json \
-    --date_start 2023-08-12 \
-    --date_end 2024-01-01 \
-    --aggregator Datetime \
-    --min_games 1 \
-    --bets_per_game 5 \
-    --weight 0.1 \
-    --optimizer BoTorchOptimizer \
-    --probability_mapping softmax \
-    --n_iterations 100 \
-    --n_jobs 1 \
-    --save_experiment
-
-
-python main_optimizer.py \
-    --data_path data/meanSurface-new.json \
-    --date_start 2023-01-01 \
-    --date_end 2024-01-01 \
-    --aggregator Datetime \
-    --min_games 1 \
-    --bets_per_game 5 \
-    --weight 0.2 \
-    --optimizer BoTorchOptimizerVariableStake \
     --probability_mapping softmax \
     --n_iterations 100 \
     --n_jobs 10 \
@@ -66,18 +36,32 @@ python main_optimizer.py \
 
 python main_optimizer.py \
     --data_path data/meanSurface-new.json \
+    --date_start 2019-01-01 \
+    --date_end 2023-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --bets_per_game 5 \
+    --weight 0.5 \
+    --optimizer BoTorchOptimizer \
+    --probability_mapping softmax \
+    --n_iterations 100 \
+    --n_jobs 1 \
+    --save_experiment
+
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
     --date_start 2023-01-01 \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
-    --max_games 3 \
-    --max_bets 7 \
+    --max_bets 15 \
     --bets_per_game 5 \
-    --weight 0.1 \
-    --optimizer MOBO \
+    --weight 0.2 \
+    --optimizer BoTorchOptimizerVariableStake \
     --probability_mapping softmax \
-    --n_iterations 70 \
-    --n_jobs 1 \
+    --n_iterations 100 \
+    --n_jobs 10 \
     --save_experiment
 
 
@@ -125,14 +109,15 @@ python main_optimizer.py \
 
 
 python main_optimizer.py \
-    --data_path data/medianSurface.json \
+    --data_path data/meanSurface-new.json \
     --date_start 2023-01-01 \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
+    --max_bets 15 \
     --bets_per_game 5 \
     --weight 0.2 \
-    --optimizer LongTermOptimizer \
+    --optimizer LongTermOptimizeSharpeRatio \
     --probability_mapping softmax \
     --n_jobs 10 \
     --save_experiment
@@ -144,6 +129,21 @@ python main_optimizer.py \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
+    --max_bets 15 \
+    --bets_per_game 5 \
+    --weight 0.2 \
+    --optimizer LongTermOptimizerProb \
+    --probability_mapping sparsemax \
+    --n_jobs 10 \
+    --save_experiment
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --max_bets 15 \
     --bets_per_game 5 \
     --weight 0.2 \
     --optimizer LongTermOptimizerProb \
@@ -158,13 +158,13 @@ python main_optimizer.py \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
-    --max_games 3 \
+    --max_bets 15 \
     --bets_per_game 5 \
     --weight 0.2 \
     --lambda_param 1 \
     --optimizer BoTorchOptimizerLambda \
     --probability_mapping softmax \
-    --n_iterations 100 \
+    --n_iterations 70 \
     --n_jobs 10 \
     --save_experiment
 

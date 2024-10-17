@@ -35,7 +35,7 @@ from dependencies.config import load_config
 from dependencies.utils import get_bet_return, save_df_as_parquet, softmax
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
-from LongTermOptimizer import estimate_long_term_return, estimate_long_term_return_prob
+from LongTermOptimizer import estimate_long_term_return_mean, estimate_long_term_return_sharpe_ratio, estimate_long_term_return_prob
 from mlflow_setup import setup_experiment
 from MOBODecomposedSharpeRatio import MOBO
 from Optimizer import Optimizer
@@ -82,18 +82,15 @@ def process_group(
                     odds_sample, n=args.bets_per_game, weight=args.weight
                 )
             else:
+                gamma = 0.10
                 odds_sample = odds_sample.sample(1)
             odds_dict[game_id] = odds_sample
             df_probs_dict[game_id] = df
 
         odds_dt = pd.concat(odds_dict.values())
 
-        # import pdb; pdb.set_trace()
-
         if args.max_bets:
             odds_dt = odds_dt.sort_values("score", ascending=False).head(args.max_bets)
-
-        # pdb.set_trace()
 
         if len(odds_dt) <= config.max_vector_length and len(odds_dt) > 1:
             iteration_date = odds_dt.Datetime.apply(str).unique()[0]
@@ -131,9 +128,16 @@ def process_group(
                         ),
                     )
 
-                elif args.optimizer == "LongTermOptimizer":
+                elif args.optimizer == "LongTermOptimizerMean":
                     solution, value, _ = Optimizer().run_optimization(
-                        fun=estimate_long_term_return,
+                        fun=estimate_long_term_return_mean,
+                        x0=np.zeros(len(odds_favorable)),
+                        args=(df_probs_dict, odds_dt, 10),
+                    )
+
+                elif args.optimizer == "LongTermOptimizeSharpeRatio":
+                    solution, value, _ = Optimizer().run_optimization(
+                        fun=estimate_long_term_return_sharpe_ratio,
                         x0=np.zeros(len(odds_favorable)),
                         args=(df_probs_dict, odds_dt, 10),
                     )
@@ -174,7 +178,9 @@ def process_group(
                 assert len(solution) == len(odds_favorable)
 
                 # here, we set gamma to 0.16 because it is the value that led to the highest return after experimentation
-                gamma = 0.16 if gamma is None else gamma
+                # gamma = 0.16 if gamma is None else gamma
+                gamma = 0.60 if gamma is None else gamma
+
 
                 logger.info("Finalization of minimization task...")
 
@@ -271,7 +277,7 @@ def run_strategy(args):
 
     data = [x for x in results if x is not None]
     df_flat = pd.DataFrame([item for sublist in data for item in sublist])
-
+    
     # Start an MLflow experiment
     with mlflow.start_run():
         # Log parameters (e.g., settings of the optimizer)
@@ -381,7 +387,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--optimizer",
         type=str,
-        default="BoTorchOptimizer",
+        default="Baseline",
         help="optimizer to use",
     )
     parser.add_argument(

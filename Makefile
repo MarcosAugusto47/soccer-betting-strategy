@@ -1,19 +1,36 @@
 # Define the Python executable and script
 PYTHON=python
 SCRIPT=main_optimizer.py
+NUM_RUNS_BASELINE = 30
 
+# Define the base flags and parameters
+BASE_FLAGS =--data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --do_baseline \
+    --save_experiment
+
+run-baseline-loop:
+	@echo "Running $(SCRIPT) $(NUM_RUNS_BASELINE) times"
+	@for i in $$(seq 1 $(NUM_RUNS_BASELINE)); do \
+		echo "Run $$i:"; \
+		python $(SCRIPT) $(BASE_FLAGS); \
+		echo ""; \
+	done
 
 
 # Common arguments shared between all runs
 COMMON_ARGS=--data_path data/meanSurface-new.json \
-			--date_start 2019-01-01 \
+			--date_start 2022-01-01 \
 			--date_end 2023-01-01 \
 			--aggregator Datetime \
 			--min_games 1 \
+			--max_bets 15 \
 			--bets_per_game 5 \
 			--optimizer BoTorchOptimizer \
 			--probability_mapping softmax \
-			--n_iterations 10 \
+			--n_iterations 70 \
 			--n_jobs 10 \
 			--save_experiment
 
@@ -44,26 +61,26 @@ run5:
 run-all: run1 run2 run3 run4 run5
 
 
-
-# Common arguments shared between all runs
 COMMON_ARGS_LAMBDA=--data_path data/meanSurface-new.json \
-			--date_start 2022-01-01 \
+			--date_start 2019-01-01 \
 			--date_end 2023-01-01 \
 			--aggregator Datetime \
 			--min_games 1 \
+			--max_bets 15 \
 			--bets_per_game 5 \
 			--weight 0.2 \
 			--optimizer BoTorchOptimizerLambda \
 			--probability_mapping softmax \
-			--n_iterations 10 \
+			--n_iterations 70 \
 			--n_jobs 10 \
 			--save_experiment
 
 # Run-specific arguments
-ARGS_LAMBDA1=--lambda_param 1
-ARGS_LAMBDA2=--lambda_param 5
-ARGS_LAMBDA3=--lambda_param 50
-ARGS_LAMBDA4=--lambda_param 5000
+ARGS_LAMBDA1=--lambda_param 0.5
+ARGS_LAMBDA2=--lambda_param 1.0
+ARGS_LAMBDA3=--lambda_param 1.5
+ARGS_LAMBDA4=--lambda_param 2.0
+ARGS_LAMBDA5=--lambda_param 5
 
 # Targets to run the script with different combinations
 run-lambda1:
@@ -78,12 +95,14 @@ run-lambda3:
 run-lambda4:
 	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_LAMBDA) $(ARGS_LAMBDA4)
 
+run-lambda5:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_LAMBDA) $(ARGS_LAMBDA5)
+
 # A target to run all combinations, this is like a hyperparameter tuning job to set the lambda parameter with past data
-run-lambda-all: run-lambda1 run-lambda2 run-lambda3 run-lambda4
+run-lambda-all: run-lambda2 run-lambda3 run-lambda4 run-lambda5
 
 
 
-# Common arguments shared between all runs
 COMMON_ARGS_VARIABLE_STAKE=--data_path data/meanSurface-new.json \
 			--date_start 2019-01-01 \
 			--date_end 2022-01-01 \
@@ -124,7 +143,6 @@ run-variablestake-all: run-variablestake1 run-variablestake2 run-variablestake3 
 
 
 
-# Common arguments shared between all runs
 COMMON_ARGS_LONG_TERM=--data_path data/meanSurface-new.json \
 			--date_start 2022-09-01 \
 			--date_end 2023-01-01 \
@@ -164,7 +182,6 @@ run-longterm5:
 run-longterm-all: run-longterm1 run-longterm2 run-longterm3 run-longterm4 run-longterm5
 
 
-# Common arguments shared between all runs
 COMMON_ARGS_MOBO=--data_path data/meanSurface-new.json \
 			--date_start 2019-01-01 \
 			--date_end 2023-01-01 \
@@ -199,6 +216,6 @@ run-mobo4:
 
 run-mobo5:
 	$(PYTHON) $(SCRIPT) $(COMMON_ARGS) $(ARGS5)
-x
+
 # A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
 run-mobo-all: run-mobo1 run-mobo2 run-mobo3 run-mobo4 run-mobo5
