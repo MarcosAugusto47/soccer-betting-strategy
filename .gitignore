@@ -166,5 +166,6 @@ mlruns/
 experiments/qualification_result/
 figures/qualification/
 figures/post_qualification/
+figures/defense/
 obs.txt
 *.lprof
