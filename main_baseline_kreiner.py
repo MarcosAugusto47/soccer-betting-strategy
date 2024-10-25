@@ -17,7 +17,7 @@ from artifacts import (
     save_csv_artifact,
     save_plot_strategy,
 )
-from BoTorchOptimizer import BoTorchOptimizer
+#from BoTorchOptimizer import BoTorchOptimizer
 from data import (
     apply_final_treatment,
     join_metadata,
@@ -53,7 +53,7 @@ def setup(args):
 
     #odds = odds[(odds.Datetime.apply(str)>"2019-08-01")&(odds.Datetime.apply(str)<"2019-09-01")]
     #odds = odds[(odds.Datetime.apply(str)>"2022-01-01")&(odds.Datetime.apply(str)<"2023-01-01")]
-    odds = odds[(odds.Datetime.apply(str)>="2022-01-01")&(odds.Datetime.apply(str)<"2023-01-01")]
+    odds = odds[(odds.Datetime.apply(str)>="2023-01-01")&(odds.Datetime.apply(str)<"2024-01-01")]
     
     # odds = odds[
     #     (odds.Datetime.apply(str) > "2019-06-01")
