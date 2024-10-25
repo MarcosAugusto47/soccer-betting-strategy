@@ -22,7 +22,7 @@ run-baseline-loop:
 
 # Common arguments shared between all runs
 COMMON_ARGS=--data_path data/meanSurface-new.json \
-			--date_start 2022-01-01 \
+			--date_start 2019-01-01 \
 			--date_end 2023-01-01 \
 			--aggregator Datetime \
 			--min_games 1 \
@@ -30,7 +30,7 @@ COMMON_ARGS=--data_path data/meanSurface-new.json \
 			--bets_per_game 5 \
 			--optimizer BoTorchOptimizer \
 			--probability_mapping softmax \
-			--n_iterations 70 \
+			--n_iterations 100 \
 			--n_jobs 10 \
 			--save_experiment
 
@@ -58,7 +58,7 @@ run5:
 	$(PYTHON) $(SCRIPT) $(COMMON_ARGS) $(ARGS5)
 
 # A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
-run-all: run1 run2 run3 run4 run5
+run-all: run3
 
 
 COMMON_ARGS_LAMBDA=--data_path data/meanSurface-new.json \
@@ -76,9 +76,9 @@ COMMON_ARGS_LAMBDA=--data_path data/meanSurface-new.json \
 			--save_experiment
 
 # Run-specific arguments
-ARGS_LAMBDA1=--lambda_param 0.5
-ARGS_LAMBDA2=--lambda_param 1.0
-ARGS_LAMBDA3=--lambda_param 1.5
+ARGS_LAMBDA1=--lambda_param 0.1
+ARGS_LAMBDA2=--lambda_param 0.5
+ARGS_LAMBDA3=--lambda_param 1.0
 ARGS_LAMBDA4=--lambda_param 2.0
 ARGS_LAMBDA5=--lambda_param 5
 
@@ -99,7 +99,7 @@ run-lambda5:
 	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_LAMBDA) $(ARGS_LAMBDA5)
 
 # A target to run all combinations, this is like a hyperparameter tuning job to set the lambda parameter with past data
-run-lambda-all: run-lambda2 run-lambda3 run-lambda4 run-lambda5
+run-lambda-all: run-lambda1 run-lambda2 run-lambda3 run-lambda4
 
 
 
