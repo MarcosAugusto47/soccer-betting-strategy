@@ -26,7 +26,7 @@ python main_optimizer.py \
     --min_games 1 \
     --max_bets 15 \
     --bets_per_game 5 \
-    --weight 0.5 \
+    --weight 0.2 \
     --optimizer BoTorchOptimizer \
     --probability_mapping softmax \
     --n_iterations 100 \
@@ -40,12 +40,13 @@ python main_optimizer.py \
     --date_end 2023-01-01 \
     --aggregator Datetime \
     --min_games 1 \
+    --max_bets 15 \
     --bets_per_game 5 \
-    --weight 0.5 \
+    --weight 0.2 \
     --optimizer BoTorchOptimizer \
     --probability_mapping softmax \
     --n_iterations 100 \
-    --n_jobs 1 \
+    --n_jobs 10 \
     --save_experiment
 
 
@@ -62,6 +63,22 @@ python main_optimizer.py \
     --probability_mapping softmax \
     --n_iterations 100 \
     --n_jobs 10 \
+    --save_experiment
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --max_bets 15 \
+    --bets_per_game 5 \
+    --weight 0.2 \
+    --lambda_param 10 \
+    --optimizer BoTorchOptimizerVariableStakeLambda \
+    --probability_mapping softmax \
+    --n_iterations 150 \
+    --n_jobs 1 \
     --save_experiment
 
 
@@ -161,10 +178,10 @@ python main_optimizer.py \
     --max_bets 15 \
     --bets_per_game 5 \
     --weight 0.2 \
-    --lambda_param 1 \
+    --lambda_param 0.1 \
     --optimizer BoTorchOptimizerLambda \
     --probability_mapping softmax \
-    --n_iterations 70 \
+    --n_iterations 100 \
     --n_jobs 10 \
     --save_experiment
 
@@ -186,4 +203,4 @@ python main_optimizer.py \
 ```bash
 conda env create -f environment.yml
 ```
-I have created multiple environments along the way, and I have provided the one that I think is the most up-to-date and enable better performance, in a general sense. (soccer_betting_strategy_improved_v3_env)
+I have created multiple environments along the way, and I have provided the one that I think is the most up-to-date and enabled better performance, in a general sense. (soccer_betting_strategy_improved_v3_env)
