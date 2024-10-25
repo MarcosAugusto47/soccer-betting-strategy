@@ -19,12 +19,14 @@ from artifacts import (
     save_csv_artifact,
     save_plot_strategy,
 )
-from BayesianOptimizer import (
+from BayesianOptimizerSeed import (
     BoTorchOptimizer,
     BoTorchOptimizerLambda,
     BoTorchOptimizerLongTerm,
     BoTorchOptimizerVariableStake,
+    BoTorchOptimizerVariableStakeLambda,
 )
+
 from data import (
     apply_final_treatment,
     join_metadata,
@@ -82,7 +84,6 @@ def process_group(
                     odds_sample, n=args.bets_per_game, weight=args.weight
                 )
             else:
-                gamma = 0.10
                 odds_sample = odds_sample.sample(1)
             odds_dict[game_id] = odds_sample
             df_probs_dict[game_id] = df
@@ -103,7 +104,6 @@ def process_group(
             time_limit_flag = None
 
             if not args.do_baseline:
-                gamma = None
                 logger.info("Execution of minimization task...")
 
                 params = {
@@ -113,6 +113,7 @@ def process_group(
                     "event": event_favorable,
                     "games_ids": games_ids,
                     "df_probs_dict": df_probs_dict,
+                    "seed": 47,
                 }
 
                 if args.optimizer == "Optimizer":
@@ -156,13 +157,20 @@ def process_group(
                 elif args.optimizer == "BoTorchOptimizerVariableStake":
                     optimizer_instance = BoTorchOptimizerVariableStake(**params)
                     solution = optimizer_instance.run_optimization()
-                    gamma = solution[0]
+                    args.gamma = solution[0]
                     solution = solution[1:]
 
                 elif args.optimizer == "BoTorchOptimizerLambda":
                     params["lambda_param"] = args.lambda_param
                     optimizer_instance = BoTorchOptimizerLambda(**params)
                     solution = optimizer_instance.run_optimization()
+                
+                elif args.optimizer == "BoTorchOptimizerVariableStakeLambda":
+                    params["lambda_param"] = args.lambda_param
+                    optimizer_instance = BoTorchOptimizerVariableStakeLambda(**params)
+                    solution = optimizer_instance.run_optimization()
+                    args.gamma = solution[0]
+                    solution = solution[1:]
 
                 elif args.optimizer == "BoTorchOptimizerLongTerm":
                     optimizer_instance = BoTorchOptimizerLongTerm(**params)
@@ -171,16 +179,12 @@ def process_group(
                     )
 
                 elif args.optimizer == "MOBO":
+                    del params["seed"]
                     optimizer_instance = MOBO(**params)
                     _, _, pareto_solution = optimizer_instance.run_optimization()
                     solution = pareto_solution[-1]
 
                 assert len(solution) == len(odds_favorable)
-
-                # here, we set gamma to 0.16 because it is the value that led to the highest return after experimentation
-                # gamma = 0.16 if gamma is None else gamma
-                gamma = 0.60 if gamma is None else gamma
-
 
                 logger.info("Finalization of minimization task...")
 
@@ -206,7 +210,7 @@ def process_group(
 
             logger.info("-" * 50)
             logger.info(f"Day {iteration_date}")
-            logger.info(f"Gamma: {np.round(gamma, 3)}")
+            logger.info(f"Gamma: {np.round(args.gamma, 3)}")
             for game_id, game_data in odds_dt.groupby("GameId", sort=False):
                 scenario = gameid_to_outcome[game_id]
                 financial_return = get_bet_return(
@@ -223,7 +227,7 @@ def process_group(
                         financial_return,
                         len(game_data),
                         odds_dt.n_favorable_bets.values[0],
-                        gamma,
+                        args.gamma,
                         time_limit_flag,
                         is_valid_solution,
                         iteration_date,
@@ -283,6 +287,7 @@ def run_strategy(args):
         # Log parameters (e.g., settings of the optimizer)
         mlflow.log_param("data_path", args.data_path)
         mlflow.log_param("aggregator", args.aggregator)
+        mlflow.log_param("gamma", args.gamma)
         mlflow.log_param("min_games", args.min_games)
         mlflow.log_param("max_games", args.max_games)
         mlflow.log_param("max_bets", args.max_bets)
@@ -350,6 +355,12 @@ if __name__ == "__main__":
         type=str,
         help="aggregate by GameId or by Datetime",
         default="Datetime",
+    )
+    parser.add_argument(
+        "--gamma",
+        type=float,
+        default=0.1,
+        help="gamma parameter representing the percentage of the budget to bet",
     )
     parser.add_argument(
         "--min_games",
