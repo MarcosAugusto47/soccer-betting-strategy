@@ -76,6 +76,7 @@ COMMON_ARGS_LAMBDA=--data_path data/meanSurface-new.json \
 			--save_experiment
 
 # Run-specific arguments
+ARGS_LAMBDA_0=--lambda_param 0.01
 ARGS_LAMBDA1=--lambda_param 0.1
 ARGS_LAMBDA2=--lambda_param 0.5
 ARGS_LAMBDA3=--lambda_param 1.0
@@ -83,6 +84,9 @@ ARGS_LAMBDA4=--lambda_param 2.0
 ARGS_LAMBDA5=--lambda_param 5
 
 # Targets to run the script with different combinations
+run-lambda0:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_LAMBDA) $(ARGS_LAMBDA_0)
+
 run-lambda1:
 	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_LAMBDA) $(ARGS_LAMBDA1)
 
@@ -99,7 +103,7 @@ run-lambda5:
 	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_LAMBDA) $(ARGS_LAMBDA5)
 
 # A target to run all combinations, this is like a hyperparameter tuning job to set the lambda parameter with past data
-run-lambda-all: run-lambda1 run-lambda2 run-lambda3 run-lambda4
+run-lambda-all: run-lambda0 run-lambda1 run-lambda2 run-lambda3 run-lambda4
 
 
 
@@ -141,6 +145,45 @@ run-variablestake5:
 # A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
 run-variablestake-all: run-variablestake1 run-variablestake2 run-variablestake3 run-variablestake4 run-variablestake5
 
+COMMON_ARGS_VARIABLE_STAKE_LAMBDA=--data_path data/meanSurface-new.json \
+			--date_start 2019-01-01 \
+			--date_end 2023-01-01 \
+			--aggregator Datetime \
+			--min_games 1 \
+			--max_bets 15 \
+			--bets_per_game 5 \
+			--weight 0.2 \
+			--optimizer BoTorchOptimizerVariableStakeLambda \
+			--probability_mapping softmax \
+			--n_iterations 20 \
+			--n_jobs 10 \
+			--save_experiment
+
+# Run-specific arguments
+ARGS_VARIABLESTAKELAMBDA1=--lambda_param 0.01
+ARGS_VARIABLESTAKELAMBDA2=--lambda_param 0.1
+ARGS_VARIABLESTAKELAMBDA3=--lambda_param 0.5
+ARGS_VARIABLESTAKELAMBDA4=--lambda_param 1.0
+ARGS_VARIABLESTAKELAMBDA5=--lambda_param 2.0
+
+# Targets to run the script with different combinations
+run-variablestakelambda1:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_VARIABLE_STAKE_LAMBDA) $(ARGS_VARIABLESTAKELAMBDA1)
+
+run-variablestakelambda2:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_VARIABLE_STAKE_LAMBDA) $(ARGS_VARIABLESTAKELAMBDA2)
+
+run-variablestakelambda3:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_VARIABLE_STAKE_LAMBDA) $(ARGS_VARIABLESTAKELAMBDA3)
+
+run-variablestakelambda4:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_VARIABLE_STAKE_LAMBDA) $(ARGS_VARIABLESTAKELAMBDA4)
+
+run-variablestakelambda5:
+	$(PYTHON) $(SCRIPT) $(COMMON_ARGS_VARIABLE_STAKE_LAMBDA) $(ARGS_VARIABLESTAKELAMBDA5)
+
+# A target to run all combinations, this is like a hyperparameter tuning job to set the weight parameter with past data
+run-variablestakelambda-all: run-variablestakelambda1 run-variablestakelambda2 run-variablestakelambda3 run-variablestakelambda4 run-variablestakelambda5
 
 
 COMMON_ARGS_LONG_TERM=--data_path data/meanSurface-new.json \
