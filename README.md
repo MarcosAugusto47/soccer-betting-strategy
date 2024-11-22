@@ -20,7 +20,7 @@ python main_optimizer.py \
 
 python main_optimizer.py \
     --data_path data/meanSurface-new.json \
-    --date_start 2023-01-01 \
+    --date_start 2023-08-06 \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
@@ -29,15 +29,15 @@ python main_optimizer.py \
     --weight 0.2 \
     --optimizer BoTorchOptimizer \
     --probability_mapping softmax \
-    --n_iterations 100 \
-    --n_jobs 10 \
+    --n_iterations 50 \
+    --n_jobs 1 \
     --save_experiment
 
 
 python main_optimizer.py \
     --data_path data/meanSurface-new.json \
-    --date_start 2019-01-01 \
-    --date_end 2023-01-01 \
+    --date_start 2019-11-09 \
+    --date_end 2019-11-15 \
     --aggregator Datetime \
     --min_games 1 \
     --max_bets 15 \
@@ -46,7 +46,7 @@ python main_optimizer.py \
     --optimizer BoTorchOptimizer \
     --probability_mapping softmax \
     --n_iterations 100 \
-    --n_jobs 10 \
+    --n_jobs 1 \
     --save_experiment
 
 
@@ -74,11 +74,11 @@ python main_optimizer.py \
     --max_bets 15 \
     --bets_per_game 5 \
     --weight 0.2 \
-    --lambda_param 10 \
+    --lambda_param 0.5 \
     --optimizer BoTorchOptimizerVariableStakeLambda \
     --probability_mapping softmax \
-    --n_iterations 150 \
-    --n_jobs 1 \
+    --n_iterations 50 \
+    --n_jobs 10 \
     --save_experiment
 
 
@@ -175,6 +175,7 @@ python main_optimizer.py \
     --date_end 2024-01-01 \
     --aggregator Datetime \
     --min_games 1 \
+    --bookmakers 'Stake.com' \
     --max_bets 15 \
     --bets_per_game 5 \
     --weight 0.2 \
@@ -185,6 +186,11 @@ python main_optimizer.py \
     --n_jobs 10 \
     --save_experiment
 
+odds_dt[['GameId', 'Odd']]
+
+## About the code
+I have found
+2019-11-10 a selected bet with an odd of 41, GameId 2983655
 
 ## About the data
 - odds-new-correct: dataset that for 2019-2023
