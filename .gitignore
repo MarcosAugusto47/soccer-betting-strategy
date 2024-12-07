@@ -169,3 +169,4 @@ figures/post_qualification/
 figures/defense/
 obs.txt
 *.lprof
+bayes_opt_scratch.py
