@@ -1,9 +1,9 @@
 import pandas as pd
 import json
 import numpy as np
-import pdb
 
 from itertools import chain
+from loguru import logger
 
 
 def load_metadata_artefacts(file_path: str):
@@ -25,19 +25,26 @@ def load_map(file_path):
         return json.load(json_file)
 
 
-def load_odds(file_path, bookmakers=None):
+def load_odds(file_path, bookmakers=None, filter_out_bookmakers=False) -> pd.DataFrame:
     df = pd.read_parquet(file_path)
     df = df[df.League=="Brasileirão Série A"].drop("League", axis=1)
     #df = df[df.Market!="spread"]
     df['Odd'] = df['Odd'].astype(float)
     df['public_prob'] = 1/df['Odd']
 
-    #if n:
-    #    sportsbook_list = list(df.Sportsbook.value_counts().index)[0:n]
-    #    df = df[df.Sportsbook.isin(sportsbook_list)]
-
     if bookmakers:
-        df = df[df.Sportsbook.isin(bookmakers)]
+
+        if filter_out_bookmakers:
+            logger.warning(f"Filtering out bookmakers: {bookmakers}")
+            logger.warning(f"Before filtering out we have {len(df)} rows")
+            df = df[~df.Sportsbook.isin(bookmakers)]
+            logger.warning(f"After filtering out we have {len(df)} rows")
+        
+        else:
+            logger.warning(f"Filtering in bookmakers: {bookmakers}")
+            logger.warning(f"Before filtering in we have {len(df)} rows")
+            df = df[df.Sportsbook.isin(bookmakers)]
+            logger.warning(f"After filtering in we have {len(df)} rows")
 
     return df
 

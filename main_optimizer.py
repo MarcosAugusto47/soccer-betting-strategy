@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import shutil
 import math
 import os
 from time import time
@@ -34,7 +35,7 @@ from data import (
     load_odds,
 )
 from dependencies.config import load_config
-from dependencies.utils import get_bet_return, save_df_as_parquet, softmax
+from dependencies.utils import get_bet_return, save_df_as_parquet, softmax, read_all_parquet
 from filter import filter_by_linear_combination
 from GameProbs import GameProbs
 from LongTermOptimizer import estimate_long_term_return_mean, estimate_long_term_return_sharpe_ratio, estimate_long_term_return_prob
@@ -47,11 +48,10 @@ config = load_config("config/config.yml")
 
 def setup(args):
     metadata, gameid_to_outcome = load_metadata_artefacts(config.metadata_path)
-    odds = load_odds(config.odds_path, args.bookmakers)
+    odds = load_odds(config.odds_path, args.bookmakers, args.filter_out_bookmakers)
     odds = join_metadata(odds, metadata)
 
     odds = odds.sort_values(["Datetime", "GameId"], ascending=True)
-
     odds = odds[
         (odds.Datetime.apply(str) >= args.date_start)
         & (odds.Datetime.apply(str) < args.date_end)
@@ -89,6 +89,9 @@ def process_group(
             df_probs_dict[game_id] = df
 
         odds_dt = pd.concat(odds_dict.values())
+
+        if odds_dt.empty:
+            return None
 
         if args.max_bets:
             odds_dt = odds_dt.sort_values("score", ascending=False).head(args.max_bets)
@@ -202,7 +205,7 @@ def process_group(
             else:
                 odds_dt["solution"] = 1
 
-            save_df_as_parquet(odds_dt, str(date))
+            save_df_as_parquet(odds_dt, str(date), directory=f"EDA/{args.optimizer}")
 
             track_record = []
 
@@ -218,7 +221,7 @@ def process_group(
                 )
                 financial_return_aggregated += financial_return
                 logger.info(
-                    f"game_id: {game_id}; financial_return: {np.round(financial_return, 3)}"
+                    f"game_id: {game_id}; allocated: {np.round(game_data.solution.sum(), 3)}; financial_return: {np.round(financial_return, 3)}"
                 )
 
                 track_record.append(
@@ -261,6 +264,7 @@ def run_strategy(args):
     logger.info(f"Maximal number of games: {args.max_games}")
     logger.info(f"Maximal number of bets: {args.max_bets}")
     logger.info(f"Bookmakers: {args.bookmakers}")
+    logger.info(F"Filter out bookmakers: {args.filter_out_bookmakers}")
     logger.info(f"Number of bets per game: {args.bets_per_game}")
     logger.info(f"Weight: {args.weight}")
     logger.info(f"Lambda param: {args.lambda_param}")
@@ -292,6 +296,7 @@ def run_strategy(args):
         mlflow.log_param("max_games", args.max_games)
         mlflow.log_param("max_bets", args.max_bets)
         mlflow.log_param("bookmakers", args.bookmakers)
+        mlflow.log_param("filter_out_bookmakers", args.filter_out_bookmakers)
         mlflow.log_param("bets_per_game", args.bets_per_game)
         mlflow.log_param("weight", args.weight)
         mlflow.log_param("lambda_param", args.lambda_param)
@@ -316,6 +321,13 @@ def run_strategy(args):
 
         mlflow.log_param("timestamp", timestamp)
         mlflow.log_artifact(f"{artefacts_folder}/result_plot.csv")
+        
+        df_eda = read_all_parquet(f"EDA/{args.optimizer}")
+        df_eda.Datetime = df_eda.Datetime.apply(str)
+        df_eda.to_json(f"{artefacts_folder}/eda.json", orient="records")
+        mlflow.log_artifact(f"{artefacts_folder}/eda.json")
+        shutil.rmtree(f"EDA/{args.optimizer}")
+        
         mlflow.log_artifact(f"{artefacts_folder}/plot.PNG")
         mlflow.log_metric("wealth", np.round(df_plot["stake"].values[-1], 3))
         mlflow.end_run()
@@ -349,6 +361,11 @@ if __name__ == "__main__":
         nargs="+",
         default=None,
         help="A list of strings",
+    )
+    parser.add_argument(
+        "--filter_out_bookmakers",
+        action="store_true",
+        help="flag to apply baseline logic or not, not specifying the argument return the opposite of the action",
     )
     parser.add_argument(
         "--aggregator",
