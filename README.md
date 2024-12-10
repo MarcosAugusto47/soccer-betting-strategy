@@ -186,6 +186,25 @@ python main_optimizer.py \
     --n_jobs 10 \
     --save_experiment
 
+
+python main_optimizer.py \
+    --data_path data/meanSurface-new.json \
+    --date_start 2023-01-01 \
+    --date_end 2024-01-01 \
+    --aggregator Datetime \
+    --min_games 1 \
+    --bookmakers 'Betobet' \
+    --filter_out_bookmakers \
+    --max_bets 15 \
+    --bets_per_game 5 \
+    --weight 0.2 \
+    --lambda_param 0.1 \
+    --optimizer BoTorchOptimizerLambda \
+    --probability_mapping softmax \
+    --n_iterations 100 \
+    --n_jobs 10 \
+    --save_experiment
+
 odds_dt[['GameId', 'Odd']]
 
 ## About the code
